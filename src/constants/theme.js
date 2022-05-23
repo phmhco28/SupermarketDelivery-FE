@@ -22,7 +22,7 @@ export const SIZES = {
 };
 
 export const FONTS = {
-  f1: {fontSize: 50, fontFamily: 'Roboto-Black'},
+  f1: {fontSize: 52, fontFamily: 'Roboto-Black'},
   f2: {fontSize: 38, fontFamily: 'Roboto-Black'},
   f3: {fontSize: 20, fontFamily: 'Roboto-Bold'},
 };
@@ -32,7 +32,8 @@ export const COLORS = {
   white: '#FFFFFF',
   yellow: '#ebe38a',
   red: '#eb6363',
-  green: '#65cf81'
+  green: '#65cf81',
+  orange: '#d96e30',
 };
 
 const appTheme = {COLORS, SIZES, FONTS};
