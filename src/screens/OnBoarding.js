@@ -1,41 +1,37 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Animated,
-  Dimensions,
-} from 'react-native';
+import {View, Text, StyleSheet, Animated, Dimensions} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
-import theme from '../../constants/theme';
+import theme from '../constants/theme';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
+import {useNavigation} from '@react-navigation/native';
 
 const {COLORS, FONTS, SIZES} = theme;
 
-export default function OnBoarding() {
-  function buttons(title) {
-    return (
-      <TouchableOpacity onPress={() => console.log('OK')}>
-        <LinearGradient
-          colors={['#1e3c72', '#2a5298']}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 1}}
-          style={styles.button}>
-          <Text
-            style={{
-              fontSize: 20,
-              fontFamily: 'Roboto-Bold',
-              color: COLORS.white,
-            }}>
-            {title}
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
-    );
-  }
+//const Buttons = (props) => {}
+function Buttons(props) {
+  const navigation = useNavigation();
+  return (
+    <TouchableOpacity onPress={() => navigation.navigate(props.route)}>
+      <LinearGradient
+        colors={['#1e3c72', '#2a5298']}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
+        style={styles.button}>
+        <Text
+          style={{
+            fontSize: 20,
+            fontFamily: 'Roboto-Bold',
+            color: COLORS.white,
+          }}>
+          {props.title}
+        </Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
 
+export default function OnBoarding() {
   const [showComponent, setShowComponent] = useState(false);
   useEffect(() => {
     setTimeout(() => {
@@ -44,6 +40,7 @@ export default function OnBoarding() {
   }, []);
 
   function renderButton() {
+    // const navigation = useNavigation();
     return (
       <Animated.View
         style={{
@@ -57,8 +54,12 @@ export default function OnBoarding() {
           height: 300,
           transform: [{translateY: contentTransition}],
         }}>
-        <Animated.View>{buttons('Đăng nhập')}</Animated.View>
-        <Animated.View>{buttons('Đăng ký ngay')}</Animated.View>
+        <Animated.View>
+          <Buttons title="Đăng nhập" route="SignIn" />
+        </Animated.View>
+        <Animated.View>
+          <Buttons title="Đăng ký ngay" />
+        </Animated.View>
       </Animated.View>
     );
   }
@@ -70,7 +71,7 @@ export default function OnBoarding() {
         {/* View Image */}
         <Animated.View style={styles.img}>
           <Animated.Image
-            source={require('../../assets/images/vecteezy_delivery-man-flat-icons-set-colorful-style_6431622-removebg.png')}
+            source={require('.././assets/images/vecteezy_delivery-man-flat-icons-set-colorful-style_6431622-removebg.png')}
             resizeMode="cover"
             style={{
               width: 120,
@@ -127,7 +128,7 @@ export default function OnBoarding() {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={['#667db6', '#0082c8','#0082c8','#667db6']}
+        colors={['#667db6', '#0082c8', '#0082c8', '#667db6']}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 1}}>
         {renderContent()}

@@ -3,7 +3,7 @@ import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import {OnBoarding} from './src/screens/';
+import {OnBoarding, SignIn} from './src/screens/';
 
 const Stack = createStackNavigator();
 const App = () => {
@@ -14,6 +14,11 @@ const App = () => {
           name="OnBoarding"
           component={OnBoarding}
           options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="SignIn"
+          component={SignIn}
+          options={{title: 'Smart'}}
         />
       </Stack.Navigator>
     </NavigationContainer>
