@@ -18,7 +18,7 @@ const App = () => {
         <Stack.Screen
           name="SignIn"
           component={SignIn}
-          options={{title: 'Smart'}}
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
     </NavigationContainer>

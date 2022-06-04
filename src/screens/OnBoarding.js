@@ -36,7 +36,7 @@ export default function OnBoarding() {
   useEffect(() => {
     setTimeout(() => {
       setShowComponent(!showComponent);
-    }, 1500);
+    }, 2200);
   }, []);
 
   function renderButton() {
@@ -46,8 +46,7 @@ export default function OnBoarding() {
         style={{
           justifyContent: 'center',
           alignItems: 'center',
-          marginTop: 100,
-          backgroundColor: '#16BFFD',
+          backgroundColor: '#f2fcfc',
           borderTopRightRadius: 40,
           borderTopLeftRadius: 40,
           paddingBottom: 28,
@@ -74,8 +73,8 @@ export default function OnBoarding() {
             source={require('.././assets/images/vecteezy_delivery-man-flat-icons-set-colorful-style_6431622-removebg.png')}
             resizeMode="cover"
             style={{
-              width: 120,
-              height: 122,
+              width: 150,
+              height: 152,
               transform: [{scale: zoomLogo}, {translateY: moveLogo.y}],
             }}
           />
@@ -110,9 +109,9 @@ export default function OnBoarding() {
     setTimeout(() => {
       Animated.parallel([
         Animated.timing(scaleTitle, {toValue: 0.75, useNativeDriver: true}),
-        Animated.timing(zoomLogo, {toValue: 1.8, useNativeDriver: true}),
+        Animated.timing(zoomLogo, {toValue: 1.2, useNativeDriver: true}),
         Animated.timing(moveTitle, {
-          toValue: {x: 0, y: -(Dimensions.get('window').height / 10 + 200)},
+          toValue: {x: 0, y: -(Dimensions.get('window').height / 10 + 250)},
           useNativeDriver: true,
         }),
         Animated.timing(moveLogo, {
@@ -121,7 +120,7 @@ export default function OnBoarding() {
         }),
         Animated.timing(contentTransition, {toValue: 0, useNativeDriver: true}),
       ]).start();
-    }, 1500);
+    }, 2200);
   }, []);
 
   //['#FFFDE4', '#005AA7']
@@ -153,14 +152,12 @@ const styles = StyleSheet.create({
     width: SIZES.width,
   },
   textContainer: {
-    flex: 0,
-    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 10,
-    height: 120,
+    height: 80,
   },
   button: {
-    height: 72,
+    height: 75,
     width: 220,
     alignItems: 'center',
     justifyContent: 'center',
