@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, Animated, Dimensions} from 'react-native';
+import {View, Text, StyleSheet, Animated, Dimensions, StatusBar} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import theme from '../constants/theme';
@@ -125,14 +125,20 @@ export default function OnBoarding() {
 
   //['#FFFDE4', '#005AA7']
   return (
-    <SafeAreaView style={styles.container}>
-      <LinearGradient
+    <SafeAreaView style={[styles.container, {backgroundColor: COLORS.blue}]}>
+      <StatusBar translucent backgroundColor='transparent'/>      
+      {/* <LinearGradient
         colors={['#667db6', '#0082c8', '#0082c8', '#667db6']}
         start={{x: 0, y: 0}}
-        end={{x: 1, y: 1}}>
+        end={{x: 1, y: 1}}
+        >
         {renderContent()}
         <View>{showComponent && renderButton()}</View>
-      </LinearGradient>
+      </LinearGradient> */}
+      <View>
+      {renderContent()}
+        <View>{showComponent && renderButton()}</View>
+      </View>
     </SafeAreaView>
   );
 }
