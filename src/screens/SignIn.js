@@ -29,11 +29,14 @@ export default function SignIn() {
       <View style={styles.content}>
         <View style={styles.form}>
           <FontAwesomeIcon name="user-o" color={COLORS.green} size={20} />
-          <TextInput placeholder="Nhập CMND hoặc CCCD" style={styles.textInput}/> 
+          <TextInput
+            placeholder="Nhập CMND hoặc CCCD"
+            style={styles.textInput}
+          />
         </View>
         <View style={styles.form}>
           <FeatherIcon name="lock" color={COLORS.green} size={20} />
-          <TextInput placeholder="Nhập mật khẩu" style={styles.textInput}/>
+          <TextInput placeholder="Nhập mật khẩu" style={styles.textInput} />
         </View>
       </View>
     </SafeAreaView>
