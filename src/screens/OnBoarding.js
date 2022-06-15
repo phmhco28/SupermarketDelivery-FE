@@ -1,4 +1,11 @@
-import {View, Text, StyleSheet, Animated, Dimensions, StatusBar} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  Dimensions,
+  StatusBar,
+} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import theme from '../constants/theme';
@@ -57,7 +64,7 @@ export default function OnBoarding() {
           <Buttons title="Đăng nhập" route="SignIn" />
         </Animated.View>
         <Animated.View>
-          <Buttons title="Đăng ký ngay" />
+          <Buttons title="Đăng ký ngay" route="SignUp" />
         </Animated.View>
       </Animated.View>
     );
@@ -121,12 +128,12 @@ export default function OnBoarding() {
         Animated.timing(contentTransition, {toValue: 0, useNativeDriver: true}),
       ]).start();
     }, 2200);
-  }, []);
+  }, []); 
 
   //['#FFFDE4', '#005AA7']
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: COLORS.blue}]}>
-      <StatusBar translucent backgroundColor='transparent'/>      
+      <StatusBar translucent backgroundColor="transparent" />
       {/* <LinearGradient
         colors={['#667db6', '#0082c8', '#0082c8', '#667db6']}
         start={{x: 0, y: 0}}
@@ -136,7 +143,7 @@ export default function OnBoarding() {
         <View>{showComponent && renderButton()}</View>
       </LinearGradient> */}
       <View>
-      {renderContent()}
+        {renderContent()}
         <View>{showComponent && renderButton()}</View>
       </View>
     </SafeAreaView>
