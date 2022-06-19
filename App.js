@@ -1,20 +1,26 @@
 import * as React from 'react';
-import FeatherIcon from 'react-native-vector-icons/Feather';
 
-import {Home, Orders, Profile, OnBoarding, SignIn} from './src/screens/'; //Loc add 3 screens
-//import Tabs from './src/navigations/tabs'; //Loc add Tabs
+import {
+  Home,
+  Orders,
+  Profile,
+  OnBoarding,
+  SignIn,
+  Map,
+  Shift,
+  Payment,
+} from './src/screens/'; //Loc add 3 screens
+
 import theme from './src/constants/theme';
 import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 const {COLORS, FONTS, SIZES} = theme;
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
-const Tab = createBottomTabNavigator();
 
 function HomeDrawer() {
   return (
@@ -24,21 +30,12 @@ function HomeDrawer() {
       <Drawer.Screen name="Trang chủ" component={Home} />
       <Drawer.Screen name="Bản đồ" component={Map} />
       <Drawer.Screen name="Giao hàng" component={Orders} />
+      <Drawer.Screen name="Ca làm" component={Shift} />
       <Drawer.Screen name="Hồ sơ" component={Profile} />
+      <Drawer.Screen name="Nộp tiền - trả hàng" component={Payment} />
     </Drawer.Navigator>
   );
 }
-
-// function mytabs() {
-//   return (
-//     <NavigationContainer>
-//       <Tab.Navigator>
-//         <Tab.Screen name="Home" component={HomeScreen} />
-//         <Tab.Screen name="Settings" component={SettingsScreen} />
-//       </Tab.Navigator>
-//     </NavigationContainer>
-//   );
-// }
 
 const App = () => {
   return (
@@ -51,17 +48,31 @@ const App = () => {
             headerShown: false,
           }}
         /> */}
-        {/* <Stack.Screen
+        <Stack.Screen
+          name="Map"
+          component={Map}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
           name="Orders"
           component={Orders}
           options={{headerShown: false}}
-        /> */}
+        />
         <Stack.Screen
           name="Profile"
           component={Profile}
           options={{headerShown: false}}
         />
-
+        <Stack.Screen
+          name="Shift"
+          component={Shift}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Payment"
+          component={Payment}
+          options={{headerShown: false}}
+        />
         <Stack.Screen
           name="OnBoarding"
           component={OnBoarding}

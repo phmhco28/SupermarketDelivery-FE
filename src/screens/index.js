@@ -5,5 +5,8 @@ import SignUp from './SignUp';
 import Home from './Home';
 import Orders from './Orders';
 import Profile from './Profile';
+import Map from './Map';
+import Shift from './Shift';
+import Payment from './Payment';
 
-export {OnBoarding, SignIn, SignUp, Home, Orders, Profile};
+export {OnBoarding, SignIn, SignUp, Home, Orders, Profile, Map, Shift, Payment};

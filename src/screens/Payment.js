@@ -15,7 +15,7 @@ const {COLORS, FONTS, SIZES} = theme;
 const Profile = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
-      {/* header */}
+      {/* header ==========================*/}
       <View style={styles.header_container}>
         <View style={styles.header_left}>
           <TouchableOpacity
@@ -26,7 +26,7 @@ const Profile = ({navigation}) => {
           </TouchableOpacity>
         </View>
         <View>
-          <Text style={styles.header_text}>HỒ SƠ</Text>
+          <Text style={styles.header_text}>NỘP TIỀN</Text>
         </View>
         <View>
           <TouchableOpacity>
@@ -34,43 +34,44 @@ const Profile = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </View>
-      {/* avatar */}
-      <View style={styles.avatar}>
-        <View style={styles.avatar_img}>
-          <FontAwesomeIcon name="user-circle-o" color="gray" size={90} />
-        </View>
-      </View>
-      <View style={styles.acc_name}>
-        <Text style={styles.acc_text}>Họ tên: Nguyễn Văn A</Text>
-        <Text style={styles.acc_text}>SDT: 0123456789</Text>
-        {/* <Text style={styles.acc_verify}>Đã xác thực</Text> */}
-      </View>
+
       {/* shipper info */}
       <View style={styles.box_info}>
         <View style={styles.box_info_name}>
-          <Text style={styles.acc_text}>Thông tin cá nhân</Text>
-          <TouchableOpacity>
-            <Text style={{color: '#1e90ff', paddingRight: 8}}>Chỉnh sửa</Text>
-          </TouchableOpacity>
+          <Text style={styles.acc_text}>Tiền mặt cần nộp</Text>
+          <Text style={{color: 'red', paddingRight: 8}}>1,090,000 đ</Text>
         </View>
-        <View>
-          <Text style={styles.info_text}>Ngày sinh: 16/06/2001</Text>
-          <Text style={styles.info_text}>Giới tính: Nam</Text>
-          <Text style={styles.info_text}>Email: nguyenvana@gmail.com</Text>
+        <View style={styles.box_info_name}>
+          <Text style={styles.acc_text}>Tiền nộp</Text>
+          <Text style={{color: 'black', paddingRight: 8}}>1,090,000 đ</Text>
+        </View>
+        <View style={styles.box_info_name}>
+          <Text style={styles.acc_text}>Dư nợ</Text>
+          <Text style={{color: 'black', paddingRight: 8}}>0 đ</Text>
+        </View>
+        <View style={styles.box_info_name}>
+          <Text style={styles.acc_text}>Tiền thưởng</Text>
+          <Text style={{color: 'black', paddingRight: 8}}>89,000 đ</Text>
         </View>
       </View>
 
       {/* shipper info */}
 
-      <View style={styles.box_p_btn}>
-        <TouchableOpacity>
-          <Text style={styles.p_btn}>Liên hệ</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.p_btn}>Cài đặt</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.p_btn}>Đăng xuất</Text>
+      <View style={styles.btn_scan}>
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+          }}>
+          <Text
+            style={{
+              color: 'white',
+              textAlign: 'center',
+              paddingRight: 16,
+            }}>
+            Scan mã nhân viên thu ngân
+          </Text>
+          <FontAwesomeIcon name="camera" color="white" size={24} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -85,6 +86,15 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     backgroundColor: '#f0f8ff',
+  },
+  btn_scan: {
+    width: '50%',
+    padding: 8,
+    borderWidth: 1,
+    backgroundColor: '#1e90ff',
+    borderRadius: 10,
+
+    margin: 32,
   },
   box_p_btn: {
     width: '75%',
@@ -111,6 +121,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingLeft: 8,
     borderRadius: 10,
+    justifyContent: 'center',
   },
   box_info_name: {
     flexDirection: 'row',
