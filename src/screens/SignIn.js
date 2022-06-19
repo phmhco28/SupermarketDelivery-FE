@@ -22,10 +22,7 @@ import {useAuth} from '../store';
 
 const {COLORS, FONTS, SIZES} = theme;
 
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// const getValue = async () => {
-//   const value = await AsyncStorage.getItem('user');
-// };
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SignIn({navigation}) {
   const [state, dispatch] = useAuth();
@@ -42,8 +39,6 @@ export default function SignIn({navigation}) {
   const [data, setData] = React.useState(initState);
 
   const handleFormSubmit = () => {
-    // console.log(data.idcard + '......' + data.password);
-    // console.log(data.password);
     if (data.idcard === '') {
       if (data.password === '') {
         return setData({...data, isValidUser: false, isValidPassword: false});
@@ -96,6 +91,12 @@ export default function SignIn({navigation}) {
       ...data,
       isLoading: false,
     });
+
+    const getValue = async () => {
+      const value = await AsyncStorage.getItem('user');
+      setData({...data, user: JSON.parse(value)});
+
+    };
   };
 
   // const textInputChange = val => {

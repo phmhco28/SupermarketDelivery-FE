@@ -89,7 +89,7 @@ export default function SignUp({navigation}) {
       },
       body: JSON.stringify({
         name: data.name,
-        sex: data.gender,
+        gender: data.gender,
         address: data.address,
         phoneNumber: data.phone,
         identityCard: data.identityCard,

@@ -1,33 +1,22 @@
 import * as React from 'react';
-import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
 import AuthProvider from './src/store/Provider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {AuthStack, AppStack} from './src/navigations';
 
-import {OnBoarding, SignIn, SignUp} from './src/screens/';
-
-const Stack = createStackNavigator();
 const App = () => {
+  const [user, setUser] = React.useState(null);
+  const getValue = async () => {
+    const value = await AsyncStorage.getItem('user');
+    setUser(JSON.parse(value));
+  };
+  React.useEffect(() => {
+    getValue();
+  }, []);
   return (
     <AuthProvider>
       <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="OnBoarding"
-            component={OnBoarding}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="SignIn"
-            component={SignIn}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="SignUp"
-            component={SignUp}
-            options={{headerShown: false}}
-          />
-        </Stack.Navigator>
+        <AuthStack />
       </NavigationContainer>
     </AuthProvider>
   );
