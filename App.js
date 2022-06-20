@@ -3,6 +3,8 @@ import {NavigationContainer} from '@react-navigation/native';
 import AuthProvider from './src/store/Provider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthStack, AppStack} from './src/navigations';
+import 'react-native-gesture-handler';
+
 
 const App = () => {
   const [user, setUser] = React.useState(null);
