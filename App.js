@@ -5,7 +5,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthStack, AppStack} from './src/navigations';
 import 'react-native-gesture-handler';
 
-
 const App = () => {
   const [user, setUser] = React.useState(null);
   const getValue = async () => {
@@ -18,10 +17,10 @@ const App = () => {
   return (
     <AuthProvider>
       <NavigationContainer>
-        <AuthStack />
+        <AppStack />
       </NavigationContainer>
     </AuthProvider>
-  );
+);
 };
 
 export default App;

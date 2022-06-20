@@ -1,6 +1,7 @@
 import OnBoarding from './OnBoarding';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
+import DrawerScreen from './DrawerScreen';
 //Loc
 import Home from './Home';
 import Orders from './Orders';
@@ -9,4 +10,15 @@ import Map from './Map';
 import Shift from './Shift';
 import Payment from './Payment';
 
-export {OnBoarding, SignIn, SignUp, Home, Orders, Profile, Map, Shift, Payment};
+export {
+  OnBoarding,
+  SignIn,
+  SignUp,
+  DrawerScreen,
+  Home,
+  Orders,
+  Profile,
+  Map,
+  Shift,
+  Payment,
+};

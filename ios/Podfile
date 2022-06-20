@@ -38,7 +38,8 @@ target 'SupermarketDelivery' do
   pod 'RNCCheckbox', :path => '../node_modules/@react-native-community/checkbox'
 
   pod 'react-native-date-picker', :path => '../node_modules/react-native-date-picker'
-  # pod 'react-native-maps', :path => '../node_modules/react-native-maps'
+
+  pod 'RNReanimated', :path => '../node_modules/react-native-reanimated'
 
   target 'SupermarketDeliveryTests' do
     inherit! :complete

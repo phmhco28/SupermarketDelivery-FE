@@ -11,14 +11,13 @@ import theme from '../constants/theme';
 import 'react-native-gesture-handler';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import {useNavigation} from '@react-navigation/native';
 
 const {COLORS, FONTS, SIZES} = theme;
-const Shift = () => {
+const Shift = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={{width: '100%', height: '15%'}}>
-        <TopComponent />
+        <TopComponent navigation={navigation} />
       </View>
       <View style={{width: '100%', height: '85%'}}>
         <MidComponent />
@@ -300,12 +299,13 @@ const styles = StyleSheet.create({
   },
   header_container: {
     width: '100%',
-    height: '50%',
+    height: '66%',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#1e90ff',
     flexDirection: 'row',
     paddingRight: 15,
+    paddingTop: 22,
   },
 
   header_left: {

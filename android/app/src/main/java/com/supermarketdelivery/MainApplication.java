@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.swmansion.reanimated.ReanimatedPackage;
+import com.swmansion.reanimated.ReanimatedPackage;
 import com.henninghall.date_picker.DatePickerPackage;
 import com.reactnativecommunity.checkbox.ReactCheckBoxPackage;
 import com.reactnativecommunity.checkbox.ReactCheckBoxPackage;

@@ -24,7 +24,7 @@ const Orders = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={{width: '100%', height: '15%'}}>
-        <TopComponent page={page} setPage={setPage} />
+        <TopComponent navigation={navigation} page={page} setPage={setPage} />
       </View>
       <View style={{width: '100%', height: '85%'}}>
         {page === Need_Delivery ? <Need_Delivery_Component /> : null}
@@ -181,8 +181,7 @@ const Need_Delivery_Component = () => {
     </View>
   );
 };
-const TopComponent = ({page, setPage}) => {
-  const {navigation} = useNavigation();
+const TopComponent = ({navigation, page, setPage}) => {
   return (
     <View style={styles.container}>
       {/* header ========================================================*/}
@@ -196,7 +195,7 @@ const TopComponent = ({page, setPage}) => {
           </TouchableOpacity>
         </View>
         <View>
-          <Text style={styles.header_text}>GIAO HÀNG</Text>
+          <Text style={styles.header_text}>ĐƠN HÀNG</Text>
         </View>
         <View>
           <TouchableOpacity>
@@ -396,12 +395,13 @@ const styles = StyleSheet.create({
   },
   header_container: {
     width: '100%',
-    height: '50%',
+    height: '66%',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#1e90ff',
     flexDirection: 'row',
     paddingRight: 15,
+    paddingTop: 22,
   },
 
   header_left: {

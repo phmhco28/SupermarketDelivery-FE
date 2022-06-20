@@ -5,6 +5,7 @@ import {
   Text,
   SafeAreaView,
   FlatList,
+  StatusBar,
   TouchableOpacity,
 } from 'react-native';
 import theme from '../constants/theme';
@@ -36,7 +37,8 @@ const Home = ({navigation}) => {
   // render() {
   //const {boxes} = this.state;
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" />
       <View style={styles.header_container}>
         <View style={styles.header_left}>
           <TouchableOpacity
@@ -58,8 +60,10 @@ const Home = ({navigation}) => {
 
       {/* box */}
       <View>
-        <TouchableOpacity style={styles.box_container} onPress={() => {}}>
-          <Text style={styles.box_tittle}>Giao hàng</Text>
+        <TouchableOpacity
+          style={styles.box_container}
+          onPress={() => navigation.navigate('Orders')}>
+          <Text style={styles.box_tittle}>Đơn hàng</Text>
           <FontAwesome5Icon
             style={styles.box_icon}
             name="box-open"
@@ -69,7 +73,9 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
       </View>
       <View>
-        <TouchableOpacity style={styles.box_container} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.box_container}
+          onPress={() => navigation.navigate('Shift')}>
           <Text style={styles.box_tittle}>Ca làm</Text>
           <FontAwesome5Icon
             style={styles.box_icon}
@@ -80,7 +86,9 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
       </View>
       <View>
-        <TouchableOpacity style={styles.box_container} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.box_container}
+          onPress={() => navigation.navigate('Payment')}>
           <Text style={styles.box_tittle}>Nộp tiền trả hàng</Text>
           <FontAwesome5Icon
             style={styles.box_icon}
@@ -91,7 +99,9 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
       </View>
       <View>
-        <TouchableOpacity style={styles.box_container} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.box_container}
+          onPress={() => navigation.navigate('Map')}>
           <Text style={styles.box_tittle}>Bản đồ</Text>
           <FontAwesome5Icon
             style={styles.box_icon}
@@ -101,7 +111,7 @@ const Home = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 // }
@@ -115,12 +125,13 @@ const styles = StyleSheet.create({
   },
   header_container: {
     width: '100%',
-    height: '8%',
+    height: '10%',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#1e90ff',
     flexDirection: 'row',
     paddingRight: 15,
+    paddingTop: 22,
   },
 
   header_left: {
@@ -139,7 +150,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     shadowOffset: {width: 0, height: 0},
     backgroundColor: COLORS.orange,
-    marginTop: 8,
+    marginTop: 15,
     borderRadius: 10,
     marginLeft: 24,
     marginRight: 24,
