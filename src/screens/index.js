@@ -8,5 +8,24 @@ import Profile from './Profile';
 import Map from './Map';
 import Shift from './Shift';
 import Payment from './Payment';
+import EditProfile from './EditProfile';
+import ReasonChangeTime from './ReasonChangeTime';
 
+<<<<<<< Updated upstream
 export {OnBoarding, SignIn, SignUp, Home, Orders, Profile, Map, Shift, Payment};
+=======
+export {
+  OnBoarding,
+  SignIn,
+  SignUp,
+  DrawerScreen,
+  Home,
+  Orders,
+  Profile,
+  Map,
+  Shift,
+  Payment,
+  EditProfile,
+  ReasonChangeTime,
+};
+>>>>>>> Stashed changes

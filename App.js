@@ -39,6 +39,7 @@ function HomeDrawer() {
 
 const App = () => {
   return (
+<<<<<<< Updated upstream
     <NavigationContainer>
       <Stack.Navigator>
         {/* <Stack.Screen
@@ -85,6 +86,13 @@ const App = () => {
         />
       </Stack.Navigator>
     </NavigationContainer>
+=======
+    <AuthProvider>
+      <NavigationContainer>
+        <AppStack />
+      </NavigationContainer>
+    </AuthProvider>
+>>>>>>> Stashed changes
   );
 };
 

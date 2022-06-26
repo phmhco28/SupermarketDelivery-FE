@@ -34,6 +34,8 @@ target 'SupermarketDelivery' do
 
   pod 'react-native-maps', :path => '../node_modules/react-native-maps'
 
+  pod 'react-native-maps', :path => '../node_modules/react-native-maps'
+
   target 'SupermarketDeliveryTests' do
     inherit! :complete
     # Pods for testing

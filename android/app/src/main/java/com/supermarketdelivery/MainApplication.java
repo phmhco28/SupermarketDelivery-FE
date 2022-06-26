@@ -4,6 +4,16 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+<<<<<<< Updated upstream
+=======
+import com.airbnb.android.react.maps.MapsPackage;
+import com.swmansion.reanimated.ReanimatedPackage;
+import com.swmansion.reanimated.ReanimatedPackage;
+import com.henninghall.date_picker.DatePickerPackage;
+import com.reactnativecommunity.checkbox.ReactCheckBoxPackage;
+import com.reactnativecommunity.checkbox.ReactCheckBoxPackage;
+import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
+>>>>>>> Stashed changes
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.BV.LinearGradient.LinearGradientPackage;

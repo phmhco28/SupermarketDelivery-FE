@@ -14,8 +14,12 @@ const Map = ({navigation}) => {
   function renderMap() {
     return (
       <View style={{flex: 1}}>
+<<<<<<< Updated upstream
         <MapView style={{flex: 1}}></MapView>
         <Text> đay là map</Text>
+=======
+        <Text>MAPpppppppp</Text>
+>>>>>>> Stashed changes
       </View>
     );
   }

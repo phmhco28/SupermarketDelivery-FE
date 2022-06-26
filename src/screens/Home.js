@@ -80,8 +80,15 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
       </View>
       <View>
+<<<<<<< Updated upstream
         <TouchableOpacity style={styles.box_container} onPress={() => {}}>
           <Text style={styles.box_tittle}>Nộp tiền trả hàng</Text>
+=======
+        <TouchableOpacity
+          style={styles.box_container}
+          onPress={() => navigation.navigate('Payment')}>
+          <Text style={styles.box_tittle}>Nộp tiền</Text>
+>>>>>>> Stashed changes
           <FontAwesome5Icon
             style={styles.box_icon}
             name="money-check-alt"

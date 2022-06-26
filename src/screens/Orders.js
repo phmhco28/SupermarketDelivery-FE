@@ -26,9 +26,11 @@ const Orders = ({navigation}) => {
       <View style={{width: '100%', height: '15%'}}>
         <TopComponent page={page} setPage={setPage} />
       </View>
-      <View style={{width: '100%', height: '85%'}}>
+      <View style={{width: '100%', height: '85%', marginTop: 16}}>
         {page === Need_Delivery ? <Need_Delivery_Component /> : null}
-        {page === Delivering ? <Delivering_MidComponent /> : null}
+        {page === Delivering ? (
+          <Delivering_MidComponent navigation={navigation} />
+        ) : null}
         {page === DCompleted ? <DCompleted_MidComponent /> : null}
       </View>
     </View>
@@ -57,7 +59,7 @@ const DCompleted_MidComponent = () => {
   );
 };
 
-const Delivering_MidComponent = () => {
+const Delivering_MidComponent = ({navigation}) => {
   return (
     <View style={styles.container}>
       {/* order's info */}
@@ -109,7 +111,9 @@ const Delivering_MidComponent = () => {
             Xác nhận
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button_change_time}>
+        <TouchableOpacity
+          style={styles.button_change_time}
+          onPress={() => navigation.navigate('ReasonChangeTime')}>
           <Text style={{color: 'black', fontSize: 14}}>Đổi giờ - hủy giao</Text>
         </TouchableOpacity>
       </View>
