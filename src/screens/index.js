@@ -11,9 +11,6 @@ import Payment from './Payment';
 import EditProfile from './EditProfile';
 import ReasonChangeTime from './ReasonChangeTime';
 
-<<<<<<< Updated upstream
-export {OnBoarding, SignIn, SignUp, Home, Orders, Profile, Map, Shift, Payment};
-=======
 export {
   OnBoarding,
   SignIn,
@@ -28,4 +25,3 @@ export {
   EditProfile,
   ReasonChangeTime,
 };
->>>>>>> Stashed changes
