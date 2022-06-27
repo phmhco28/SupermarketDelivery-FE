@@ -1,14 +1,55 @@
 import {View, StyleSheet} from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {DrawerItem, DrawerContentScrollView} from '@react-navigation/drawer';
-import {Drawer, Avatar, Title, Caption, Paragraph} from 'react-native-paper';
+import {Drawer, Avatar, Title, Caption} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconFontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import IconMaterial from 'react-native-vector-icons/MaterialIcons';
 import {block} from 'react-native-reanimated';
 import {COLORS} from '../constants/theme';
+import {useAuth} from '../store';
+import {State} from 'react-native-gesture-handler';
+import ip from '../api';
 
 export default function DrawerScreen(props) {
+  const [state, dispatch] = useAuth();
+  const [isSending, setIsSending] = useState(false);
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    if (isSending) {
+      Logout();
+      setIsSending(false);
+    }
+  }, [isSending]);
+  const Logout = () => {
+    dispatch({
+      type: 'Logout',
+      payload: null,
+    });
+    props.navigation.navigate('SignIn');
+  };
+  const getUser = async id => {
+    try {
+      const response = await fetch(
+        `http://${ip}/api/v0/user?id=${encodeURIComponent(id)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      setUser(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    if (state.user) {
+      getUser(state.user.accountId);
+    }
+  }, []);
   return (
     <View style={{flex: 1, backgroundColor: COLORS.white}}>
       <DrawerContentScrollView {...props}>
@@ -21,8 +62,12 @@ export default function DrawerScreen(props) {
                 style={{backgroundColor: 'transparent'}}
               />
               <View style={{flexDirection: 'column', marginLeft: 15}}>
-                <Title style={styles.title}>Nguyễn A</Title>
-                <Caption style={styles.caption}>ID: 21558465</Caption>
+                <Title style={styles.title}>
+                  {user !== null ? user.name : null}
+                </Title>
+                <Caption style={styles.caption}>
+                  ID: {user !== null ? user.shipperId : null}
+                </Caption>
               </View>
             </View>
           </View>
@@ -42,7 +87,9 @@ export default function DrawerScreen(props) {
               )}
               label="Bản đồ"
               onPress={() => {
-                props.navigation.navigate('Map');
+                // props.navigation.navigate('Map');
+                console.log('Log in Drawer:');
+                console.log(state);
               }}
             />
             <DrawerItem
@@ -98,7 +145,7 @@ export default function DrawerScreen(props) {
             <Icon name="exit-to-app" color={color} size={size} />
           )}
           label="Đăng xuất"
-          // onPress={() => {props.navigation.navigate('Home')}}
+          onPress={() => setIsSending(true)}
         />
       </Drawer.Section>
     </View>

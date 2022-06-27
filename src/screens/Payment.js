@@ -9,10 +9,40 @@ import {
 import theme from '../constants/theme';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import ip from '../api';
+// import {useAuth} from '../store';
 
 const {COLORS, FONTS, SIZES} = theme;
 
-const Profile = ({navigation}) => {
+const Payment = ({navigation}) => {
+  // const [state, dispatch] = useAuth();
+  //Call API /orders/completed
+  const [completed, setCompleted] = React.useState(null);
+  const getOrderComplete = async () => {
+    try {
+      const response = await fetch(`http://${ip}/api/v0/orders/complete`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      setCompleted(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  // React.useEffect(() => {
+  getOrderComplete();
+  // }, []);
+  let paymentAmount = 0;
+  let bonus = 0;
+  if (completed) {
+    for (let i of completed) {
+      paymentAmount += i.paymentAmount;
+    }
+    bonus = completed.length * 15000;
+  }
   return (
     <SafeAreaView style={styles.container}>
       {/* header ==========================*/}
@@ -39,11 +69,13 @@ const Profile = ({navigation}) => {
       <View style={styles.box_info}>
         <View style={styles.box_info_name}>
           <Text style={styles.acc_text}>Tiền mặt cần nộp</Text>
-          <Text style={{color: 'red', paddingRight: 8}}>1,090,000 đ</Text>
+          <Text style={{color: 'red', paddingRight: 8}}>{paymentAmount} đ</Text>
         </View>
         <View style={styles.box_info_name}>
           <Text style={styles.acc_text}>Tiền nộp</Text>
-          <Text style={{color: 'black', paddingRight: 8}}>1,090,000 đ</Text>
+          <Text style={{color: 'black', paddingRight: 8}}>
+            {paymentAmount} đ
+          </Text>
         </View>
         <View style={styles.box_info_name}>
           <Text style={styles.acc_text}>Dư nợ</Text>
@@ -51,7 +83,7 @@ const Profile = ({navigation}) => {
         </View>
         <View style={styles.box_info_name}>
           <Text style={styles.acc_text}>Tiền thưởng</Text>
-          <Text style={{color: 'black', paddingRight: 8}}>89,000 đ</Text>
+          <Text style={{color: 'black', paddingRight: 8}}>{bonus} đ</Text>
         </View>
       </View>
 
@@ -77,7 +109,8 @@ const Profile = ({navigation}) => {
     </SafeAreaView>
   );
 };
-export default Profile;
+
+export default Payment;
 
 const styles = StyleSheet.create({
   container: {

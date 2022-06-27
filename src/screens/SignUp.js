@@ -19,6 +19,7 @@ import * as Animatable from 'react-native-animatable';
 import {ScrollView} from 'react-native-gesture-handler';
 import DatePicker from 'react-native-date-picker';
 import LinearGradient from 'react-native-linear-gradient';
+import ip from '../api';
 
 const {COLORS, FONTS, SIZES} = theme;
 
@@ -82,7 +83,8 @@ export default function SignUp({navigation}) {
     if (data.flash === true) {
       return console.log(data);
     }
-    fetch('http://192.168.1.3:8080/api/v0/registry', {
+    const url = 'http://' + ip + '/api/v0/registry';
+    fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

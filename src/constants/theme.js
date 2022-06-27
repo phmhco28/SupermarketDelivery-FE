@@ -35,6 +35,7 @@ export const COLORS = {
   green: '#65cf81',
   orange: '#d96e30',
   gray: '#818a84',
+  greenSelected: '#1b7a34',
 };
 
 const appTheme = {COLORS, SIZES, FONTS};

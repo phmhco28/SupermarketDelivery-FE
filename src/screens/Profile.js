@@ -1,4 +1,5 @@
 import React from 'react';
+import Moment from 'moment';
 import {
   StyleSheet,
   View,
@@ -9,10 +10,53 @@ import {
 import theme from '../constants/theme';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import {useAuth} from '../store';
+import ip from '../api';
 
 const {COLORS, FONTS, SIZES} = theme;
 
 const Profile = ({navigation}) => {
+  Moment.locale('vi');
+  const [state, dispatch] = useAuth();
+  const [user, setUser] = React.useState(null);
+
+  const getUser = async id => {
+    try {
+      const response = await fetch(
+        `http://${ip}/api/v0/user?id=${encodeURIComponent(id)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      setUser(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  React.useEffect(() => {
+    if (state.user) {
+      getUser(state.user.accountId);
+    }
+  }, []);
+
+  const [isSending, setIsSending] = React.useState(false);
+  React.useEffect(() => {
+    if (isSending) {
+      Logout();
+      setIsSending(false);
+    }
+  }, [isSending]);
+  const Logout = () => {
+    dispatch({
+      type: 'Logout',
+      payload: null,
+    });
+    navigation.navigate('SignIn');
+  };
   return (
     <SafeAreaView style={styles.container}>
       {/* header */}
@@ -41,8 +85,12 @@ const Profile = ({navigation}) => {
         </View>
       </View>
       <View style={styles.acc_name}>
-        <Text style={styles.acc_text}>Họ tên: Nguyễn Văn A</Text>
-        <Text style={styles.acc_text}>SDT: 0123456789</Text>
+        <Text style={styles.acc_text}>
+          Họ tên: {user !== null ? user.name : null}
+        </Text>
+        <Text style={styles.acc_text}>
+          SDT: {user !== null ? user.phoneNumber : null}
+        </Text>
         {/* <Text style={styles.acc_verify}>Đã xác thực</Text> */}
       </View>
       {/* shipper info */}
@@ -54,9 +102,16 @@ const Profile = ({navigation}) => {
           </TouchableOpacity>
         </View>
         <View>
-          <Text style={styles.info_text}>Ngày sinh: 16/06/2001</Text>
-          <Text style={styles.info_text}>Giới tính: Nam</Text>
-          <Text style={styles.info_text}>Email: nguyenvana@gmail.com</Text>
+          <Text style={styles.info_text}>
+            Ngày sinh:{' '}
+            {user !== null ? Moment(user.dateOfBirth).format('l') : null}
+          </Text>
+          <Text style={styles.info_text}>
+            Giới tính: {user !== null ? user.gender : null}
+          </Text>
+          <Text style={styles.info_text}>
+            Email: {user !== null ? user.mail : null}
+          </Text>
         </View>
       </View>
 
@@ -69,7 +124,7 @@ const Profile = ({navigation}) => {
         <TouchableOpacity>
           <Text style={styles.p_btn}>Cài đặt</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => setIsSending(true)}>
           <Text style={styles.p_btn}>Đăng xuất</Text>
         </TouchableOpacity>
       </View>

@@ -7,3 +7,8 @@ export const Logout = payload => ({
   type: 'Logout',
   payload,
 });
+
+export const Map = payload => ({
+  type: 'Map',
+  payload,
+});

@@ -19,6 +19,8 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import * as Animatable from 'react-native-animatable';
 import theme from '../constants/theme';
 import {useAuth} from '../store';
+import {AppStack} from '../navigations';
+import ip from '../api';
 
 const {COLORS, FONTS, SIZES} = theme;
 
@@ -52,7 +54,8 @@ export default function SignIn({navigation}) {
       ...data,
       isLoading: true,
     });
-    fetch('http://192.168.1.3:8080/api/v0/auth/signin', {
+    const url = 'http://' + ip + '/api/v0/auth/signin';
+    fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -79,6 +82,9 @@ export default function SignIn({navigation}) {
           type: 'Login',
           payload: resJson,
         });
+        if (resJson != null) {
+          navigation.navigate('drawerNavigate', {screen: 'Home'});
+        }
       })
       .catch(error => {
         setData({
@@ -91,12 +97,6 @@ export default function SignIn({navigation}) {
       ...data,
       isLoading: false,
     });
-
-    const getValue = async () => {
-      const value = await AsyncStorage.getItem('user');
-      setData({...data, user: JSON.parse(value)});
-
-    };
   };
 
   // const textInputChange = val => {
@@ -223,7 +223,7 @@ export default function SignIn({navigation}) {
               <View style={styles.button}>
                 <TouchableOpacity
                   style={styles.signIn}
-                  onPress={handleFormSubmit}>
+                  onPress={() => handleFormSubmit()}>
                   <LinearGradient
                     colors={['#1e3c72', '#2a5298']}
                     style={styles.signIn}>
