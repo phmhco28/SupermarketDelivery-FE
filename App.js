@@ -39,60 +39,11 @@ function HomeDrawer() {
 
 const App = () => {
   return (
-<<<<<<< Updated upstream
-    <NavigationContainer>
-      <Stack.Navigator>
-        {/* <Stack.Screen
-          name="Home"
-          component={HomeDrawer}
-          options={{
-            headerShown: false,
-          }}
-        /> */}
-        <Stack.Screen
-          name="Map"
-          component={Map}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Orders"
-          component={Orders}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Profile"
-          component={Profile}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Shift"
-          component={Shift}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Payment"
-          component={Payment}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="OnBoarding"
-          component={OnBoarding}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="SignIn"
-          component={SignIn}
-          options={{headerShown: false}}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
-=======
     <AuthProvider>
       <NavigationContainer>
         <AppStack />
       </NavigationContainer>
     </AuthProvider>
->>>>>>> Stashed changes
   );
 };
 

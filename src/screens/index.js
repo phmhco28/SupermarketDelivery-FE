@@ -10,6 +10,7 @@ import Shift from './Shift';
 import Payment from './Payment';
 import EditProfile from './EditProfile';
 import ReasonChangeTime from './ReasonChangeTime';
+import DrawerScreen from './DrawerScreen';
 
 export {
   OnBoarding,

@@ -55,7 +55,6 @@ const Home = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </View>
-
       {/* box */}
       <View>
         <TouchableOpacity style={styles.box_container} onPress={() => {}}>
@@ -80,10 +79,9 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
       </View>
       <View>
-
         <TouchableOpacity style={styles.box_container} onPress={() => {}}>
-          <Text style={styles.box_tittle}>Nộp tiền trả hàng</Text>
-
+          <Text style={styles.box_tittle}>Nộp tiền</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.box_container}
           onPress={() => navigation.navigate('Payment')}>
@@ -96,7 +94,7 @@ const Home = ({navigation}) => {
             size={50}
           />
         </TouchableOpacity>
-        </TouchableOpacity>
+        {/* </TouchableOpacity> */}
       </View>
       <View>
         <TouchableOpacity style={styles.box_container} onPress={() => {}}>

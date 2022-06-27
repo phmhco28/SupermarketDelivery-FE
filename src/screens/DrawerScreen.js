@@ -1,0 +1,133 @@
+import {View, StyleSheet} from 'react-native';
+import React from 'react';
+import {DrawerItem, DrawerContentScrollView} from '@react-navigation/drawer';
+import {Drawer, Avatar, Title, Caption, Paragraph} from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconFontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import IconMaterial from 'react-native-vector-icons/MaterialIcons';
+import {block} from 'react-native-reanimated';
+import {COLORS} from '../constants/theme';
+
+export default function DrawerScreen(props) {
+  return (
+    <View style={{flex: 1, backgroundColor: COLORS.white}}>
+      <DrawerContentScrollView {...props}>
+        <View style={{flex: 1}}>
+          <View style={styles.shipperInfo}>
+            <View style={{flexDirection: 'row', marginTop: 8}}>
+              <Avatar.Image
+                source={require('../assets/images/avatar_temp.png')}
+                size={65}
+                style={{backgroundColor: 'transparent'}}
+              />
+              <View style={{flexDirection: 'column', marginLeft: 15}}>
+                <Title style={styles.title}>Nguyễn A</Title>
+                <Caption style={styles.caption}>ID: 21558465</Caption>
+              </View>
+            </View>
+          </View>
+          <Drawer.Section style={styles.menuSection}>
+            <DrawerItem
+              icon={({color, size}) => (
+                <Icon name="home-outline" color={color} size={size} />
+              )}
+              label="Trang chủ"
+              onPress={() => {
+                props.navigation.navigate('Home');
+              }}
+            />
+            <DrawerItem
+              icon={({color, size}) => (
+                <Icon name="google-maps" color={color} size={size} />
+              )}
+              label="Bản đồ"
+              onPress={() => {
+                props.navigation.navigate('Map');
+              }}
+            />
+            <DrawerItem
+              icon={({color, size}) => (
+                <IconFontAwesome5
+                  name="shipping-fast"
+                  color={color}
+                  size={size}
+                />
+              )}
+              label="Đơn hàng"
+              onPress={() => {
+                props.navigation.navigate('Orders');
+              }}
+            />
+            <DrawerItem
+              icon={({color, size}) => (
+                <IconMaterial name="payment" color={color} size={size} />
+              )}
+              label="Thanh toán trả hàng"
+              onPress={() => {
+                props.navigation.navigate('Payment');
+              }}
+            />
+            <DrawerItem
+              icon={({color, size}) => (
+                <Icon
+                  name="calendar-account-outline"
+                  color={color}
+                  size={size}
+                />
+              )}
+              label="Lịch làm việc"
+              onPress={() => {
+                props.navigation.navigate('Shift');
+              }}
+            />
+            <DrawerItem
+              icon={({color, size}) => (
+                <Icon name="account-outline" color={color} size={size} />
+              )}
+              label="Thông tin cá nhân"
+              onPress={() => {
+                props.navigation.navigate('Profile');
+              }}
+            />
+          </Drawer.Section>
+        </View>
+      </DrawerContentScrollView>
+      <Drawer.Section style={styles.bottomSection}>
+        <DrawerItem
+          icon={({color, size}) => (
+            <Icon name="exit-to-app" color={color} size={size} />
+          )}
+          label="Đăng xuất"
+          // onPress={() => {props.navigation.navigate('Home')}}
+        />
+      </Drawer.Section>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  title: {
+    fontSize: 16,
+    marginTop: 3,
+    fontWeight: 'bold',
+  },
+  shipperInfo: {
+    paddingLeft: 5,
+    borderBottomColor: COLORS.green,
+    borderBottomLeftRadius: 12,
+    borderBottomWidth: 6,
+    paddingBottom: 5,
+  },
+  menuSection: {
+    marginTop: 15,
+  },
+  caption: {
+    fontSize: 14,
+    lineHeight: 14,
+  },
+  bottomSection: {
+    marginBottom: 15,
+    borderTopColor: '#f4f4f4',
+    borderTopWidth: 1,
+  },
+});
