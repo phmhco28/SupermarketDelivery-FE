@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.reactnativecommunity.geolocation.GeolocationPackage;
+import com.airbnb.android.react.maps.MapsPackage;
 import com.swmansion.reanimated.ReanimatedPackage;
 import com.swmansion.reanimated.ReanimatedPackage;
 import com.henninghall.date_picker.DatePickerPackage;

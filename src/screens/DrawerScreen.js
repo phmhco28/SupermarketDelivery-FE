@@ -87,9 +87,7 @@ export default function DrawerScreen(props) {
               )}
               label="Bản đồ"
               onPress={() => {
-                // props.navigation.navigate('Map');
-                console.log('Log in Drawer:');
-                console.log(state);
+                props.navigation.navigate('Map');
               }}
             />
             <DrawerItem

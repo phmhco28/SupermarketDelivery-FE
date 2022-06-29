@@ -2,6 +2,9 @@
   package="com.supermarketdelivery">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
       android:name=".MainApplication"
@@ -14,8 +17,8 @@
 
        <!-- You will only need to add this meta-data tag, but make sure it's a child of application -->
    <meta-data
-     android:name="com.google.android.geo.API_KEY"
-     android:value="AIzaSyCumqmHRc11YVqGYta97Mra9qqthOT6ra4"/>
+      android:name="com.google.android.geo.API_KEY"
+      android:value="AIzaSyAHS9YARbGbcPGo0uSHiPY9GbjLKmfILVE"/>
   
    <!-- You will also only need to add this uses-library tag -->
    <uses-library android:name="org.apache.http.legacy" android:required="false"/>

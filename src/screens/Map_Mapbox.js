@@ -8,48 +8,13 @@ import {
 } from 'react-native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import MapView, {Marker, enableLatestRenderer} from 'react-native-maps';
-import Geolocation from '@react-native-community/geolocation';
+// import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 
 const Map = ({navigation}) => {
-  enableLatestRenderer();
-
-  const [position, setPosition] = React.useState({
-    latitude: 10,
-    longitude: 10,
-    latitudeDelta: 0.001,
-    longitudeDelta: 0.001,
-  });
-
-  React.useEffect(() => {
-    Geolocation.getCurrentPosition(pos => {
-      const crd = pos.coords;
-      setPosition({
-        latitude: crd.latitude,
-        longitude: crd.longitude,
-        latitudeDelta: 0.0421,
-        longitudeDelta: 0.0421,
-      });
-    }).catch(err => {
-      console.log(err);
-    });
-  }, []);
   function renderMap() {
     return (
       <View style={{flex: 1}}>
-        <MapView
-          style={styles.map}
-          initialRegion={position}
-          showsUserLocation={true}
-          showsMyLocationButton={true}
-          followsUserLocation={true}
-          showsCompass={true}
-          scrollEnabled={true}
-          zoomEnabled={true}
-          pitchEnabled={true}
-          rotateEnabled={true}>
-          <Marker title="Yor are here" coordinate={position} />
-        </MapView>
+        <Text>MAP</Text>
       </View>
     );
   }
@@ -112,6 +77,7 @@ const TopComponent = ({navigation}) => {
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     //flex: 1,
@@ -120,10 +86,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f8ff',
     //alignItems: 'center',
   },
-  map: {
-    height: '100%',
-    width: '100%',
-  },
+
   header_container: {
     width: '100%',
     height: '10%',

@@ -104,6 +104,7 @@ const Orders = ({navigation}) => {
             setPage={setPage}
             orderShipping={orderShipping}
             setOrderShipping={setOrderShipping}
+            navigation={navigation}
           />
         ) : null}
         {page === DCompleted ? <DCompleted_MidComponent state={state} /> : null}
@@ -174,6 +175,7 @@ const Delivering_MidComponent = ({
   // orderShipping,
   setOrderShipping,
   state,
+  navigation,
 }) => {
   //Call Api to update status orders
   const [isCancel, setIsCancel] = useState(false);
@@ -317,7 +319,7 @@ const Delivering_MidComponent = ({
           <Text style={[styles.text_order_info, {fontWeight: 'bold'}]}>
             Địa chỉ:{' '}
           </Text>
-          <TouchableOpacity disabled={orderValue ? true : false}>
+          <TouchableOpacity onPress={() => navigation.navigate('Map')} disabled={orderValue ? false : true}>
             <Text
               style={
                 (styles.text_order_info, {color: '#1e90ff', paddingTop: 7})

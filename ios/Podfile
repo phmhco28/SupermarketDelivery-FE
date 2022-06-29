@@ -41,6 +41,10 @@ target 'SupermarketDelivery' do
 
   pod 'RNReanimated', :path => '../node_modules/react-native-reanimated'
 
+  pod 'react-native-maps', :path => '../node_modules/react-native-maps'
+
+  pod 'react-native-geolocation', :path => '../node_modules/@react-native-community/geolocation'
+
   target 'SupermarketDeliveryTests' do
     inherit! :complete
     # Pods for testing
