@@ -101,7 +101,7 @@ const Home = ({navigation}) => {
       <View>
         <TouchableOpacity
           style={styles.box_container}
-          onPress={() => navigation.navigate('Map')}>
+          onPress={() => navigation.navigate('Map_Mapbox')}>
           <Text style={styles.box_tittle}>Bản đồ</Text>
           <FontAwesome5Icon
             style={styles.box_icon}

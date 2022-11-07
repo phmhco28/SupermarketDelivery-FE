@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -9,12 +9,48 @@ import {
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 // import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
+import MapboxGL from "@rnmapbox/maps";
+import Geolocation from '@react-native-community/geolocation';
 
-const Map = ({navigation}) => {
-  function renderMap() {
+MapboxGL.setAccessToken('pk.eyJ1IjoiY29taW5ocGhhbSIsImEiOiJjbDR4ZTd3YmYxZmFyM2RtemswcjhwNDV5In0.Gt54iWoEpzk2JpM8nLGTow');
+
+const Map_Mapbox = ({navigation}) => {
+  const [coordinates, setCoordinates] = useState([10.840183, 106.727707]);
+    const [position, setPosition] = React.useState({
+      latitude: 10,
+      longitude: 10,
+      latitudeDelta: 0.001,
+      longitudeDelta: 0.001,
+    });
+  React.useEffect(() => {
+    Geolocation.getCurrentPosition(pos => {
+      const crd = pos.coords;
+      setPosition({
+        latitude: crd.latitude,
+        longitude: crd.longitude,
+        latitudeDelta: 0.0421,
+        longitudeDelta: 0.0421,
+      });
+    }).catch(err => {
+      console.log(err);
+    });
+  }, []);
+  useEffect(() => {
+    MapboxGL.setTelemetryEnabled(false);
+  });
+  function renderMap() {        
     return (
-      <View style={{flex: 1}}>
-        <Text>MAP</Text>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        {/* <Text>MAP</Text> */}
+        <View style={{height: "100%", width: "100%"}}>
+          <MapboxGL.MapView showUserLocation={true} zoomLevel={16} centerCoordinate={[position.latitude, position.longitude]} style={{flex: 1}} styleURL='https://tiles.goong.io/assets/goong_map_web.json?api_key=qIVeectWKhDORT4uzT5U0yx0COCj9T0ddLUYdFJz'>  
+          {/* styleJSON={JSON.stringify(defaultStyle)} ----Display mapbox view default */}
+          {/* <MapboxGL.Camera zoomLevel={5}
+            centerCoordinate={coordinates} />
+           <MapboxGL.PointAnnotation coordinate={coordinates} /> */}
+          {/* <MapboxGL.UserLocation visible={true}/> */}
+          </MapboxGL.MapView>
+        </View>
       </View>
     );
   }
@@ -50,7 +86,7 @@ const Map = ({navigation}) => {
   );
 };
 
-export default Map;
+export default Map_Mapbox;
 const TopComponent = ({navigation}) => {
   return (
     <View style={styles.container}>
@@ -77,6 +113,36 @@ const TopComponent = ({navigation}) => {
   );
 };
 
+const defaultStyle = {
+  version: 8,
+  name: 'Land',
+  sources: {
+    map: {
+      type: 'raster',
+      tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      minzoom: 1,
+      maxzoom: 19,
+    },
+  },
+  layers: [
+    {
+      id: 'background',
+      type: 'background',
+      paint: {
+        'background-color': '#f2efea',
+      },
+    },
+    {
+      id: 'map',
+      type: 'raster',
+      source: 'map',
+      paint: {
+        'raster-fade-duration': 100,
+      },
+    },
+  ],
+};
 
 const styles = StyleSheet.create({
   container: {

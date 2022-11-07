@@ -87,7 +87,7 @@ export default function DrawerScreen(props) {
               )}
               label="Bản đồ"
               onPress={() => {
-                props.navigation.navigate('Map');
+                props.navigation.navigate('Map_Mapbox');
               }}
             />
             <DrawerItem

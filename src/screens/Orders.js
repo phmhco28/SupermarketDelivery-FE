@@ -319,7 +319,7 @@ const Delivering_MidComponent = ({
           <Text style={[styles.text_order_info, {fontWeight: 'bold'}]}>
             Địa chỉ:{' '}
           </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Map')} disabled={orderValue ? false : true}>
+          <TouchableOpacity onPress={() => navigation.navigate('Map_Mapbox')} disabled={orderValue ? false : true}>
             <Text
               style={
                 (styles.text_order_info, {color: '#1e90ff', paddingTop: 7})

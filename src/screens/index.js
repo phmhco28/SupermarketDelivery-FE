@@ -6,7 +6,7 @@ import DrawerScreen from './DrawerScreen';
 import Home from './Home';
 import Orders from './Orders';
 import Profile from './Profile';
-import Map from './Map';
+import Map_Mapbox from './Map_Mapbox';
 import Shift from './Shift';
 import Payment from './Payment';
 
@@ -18,7 +18,7 @@ export {
   Home,
   Orders,
   Profile,
-  Map,
+  Map_Mapbox,
   Shift,
   Payment,
 };
