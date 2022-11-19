@@ -39,7 +39,7 @@ const Shift = ({navigation}) => {
       const response = await fetch(
         `http://${ip}/api/v0/work-schedule/user?startDate=${encodeURIComponent(
           start,
-        )}&endDate=${encodeURIComponent(end)}&id=${encodeURIComponent(id)}`,
+        )}&endDate=${encodeURIComponent(end)}&accId=${encodeURIComponent(id)}`,
         {
           method: 'GET',
           headers: {

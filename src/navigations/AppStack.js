@@ -10,6 +10,7 @@ import {
   DrawerScreen,
   Map_Mapbox,
 } from '../screens';
+import AuthStack from './AuthStack';
 
 const Drawer = createDrawerNavigator();
 
@@ -25,6 +26,7 @@ const AppStack = () => {
       <Drawer.Screen name="Profile" component={Profile} />
       <Drawer.Screen name="Shift" component={Shift} />
       <Drawer.Screen name="Payment" component={Payment} />
+      <Drawer.Screen name="authStack" component={AuthStack} options={{headerShown: false}}/>
     </Drawer.Navigator>
   );
 };

@@ -79,6 +79,12 @@ function AuthReducer(state, action) {
         ...state,
         map: {address: action.payload.address, gps: action.payload.gps},
       };
+    case 'getUser':
+
+      return {
+        ...state,
+        user: action.payload,
+      }
     default:
       return state;
   }

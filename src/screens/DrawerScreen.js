@@ -11,10 +11,12 @@ import {useAuth} from '../store';
 import {State} from 'react-native-gesture-handler';
 import ip from '../api';
 
+
 export default function DrawerScreen(props) {
   const [state, dispatch] = useAuth();
   const [isSending, setIsSending] = useState(false);
   const [user, setUser] = useState(null);
+
   useEffect(() => {
     if (isSending) {
       Logout();
@@ -26,12 +28,12 @@ export default function DrawerScreen(props) {
       type: 'Logout',
       payload: null,
     });
-    props.navigation.navigate('SignIn');
+    props.navigation.navigate('authStack', {screen: 'SignIn'});
   };
   const getUser = async id => {
     try {
       const response = await fetch(
-        `http://${ip}/api/v0/user?id=${encodeURIComponent(id)}`,
+        `http://${ip}/api/v0/user?accId=${encodeURIComponent(id)}`,
         {
           method: 'GET',
           headers: {
@@ -45,10 +47,13 @@ export default function DrawerScreen(props) {
       console.error(error);
     }
   };
+
   useEffect(() => {
     if (state.user) {
       getUser(state.user.accountId);
     }
+    console.log(user)
+    console.log('user state: ' + state.user)
   }, []);
   return (
     <View style={{flex: 1, backgroundColor: COLORS.white}}>

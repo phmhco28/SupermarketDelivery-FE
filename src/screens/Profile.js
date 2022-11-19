@@ -23,7 +23,7 @@ const Profile = ({navigation}) => {
   const getUser = async id => {
     try {
       const response = await fetch(
-        `http://${ip}/api/v0/user?id=${encodeURIComponent(id)}`,
+        `http://${ip}/api/v0/user?accId=${encodeURIComponent(id)}`,
         {
           method: 'GET',
           headers: {

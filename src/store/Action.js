@@ -12,3 +12,8 @@ export const Map = payload => ({
   type: 'Map',
   payload,
 });
+
+export const getUser = payload => ({
+  type: 'getUser',
+  payload,
+});

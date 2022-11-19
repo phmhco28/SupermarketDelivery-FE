@@ -35,7 +35,7 @@ const Orders = ({navigation}) => {
   const getOrdersOfUser = async id => {
     try {
       const response = await fetch(
-        `http://${ip}/api/v0/orders?id=${encodeURIComponent(id)}`,
+        `http://${ip}/api/v0/orders?accId=${encodeURIComponent(id)}`,
         {
           method: 'GET',
           headers: {
@@ -185,7 +185,7 @@ const Delivering_MidComponent = ({
   const getOrderDelivering = async id => {
     try {
       const response = await fetch(
-        `http://${ip}/api/v0/orders/delivering?id=${encodeURIComponent(id)}`,
+        `http://${ip}/api/v0/orders/delivering?accId=${encodeURIComponent(id)}`,
         {
           method: 'GET',
           headers: {
@@ -284,11 +284,11 @@ const Delivering_MidComponent = ({
         <Text style={styles.text_order_info}>
           {orderShipping.address.details +
             ', ' +
-            orderShipping.address.ward +
+            orderShipping.address.ward.wardName +
             ', ' +
-            orderShipping.address.district +
+            orderShipping.address.ward.district.districtName +
             ', ' +
-            orderShipping.address.city}
+            orderShipping.address.ward.district.city.cityName}
         </Text>
       );
     }
@@ -449,7 +449,7 @@ const Need_Delivery_Component = props => {
   const reRenderOrdersOfUser = async id => {
     try {
       const response = await fetch(
-        `http://${ip}/api/v0/orders?id=${encodeURIComponent(id)}`,
+        `http://${ip}/api/v0/orders?accId=${encodeURIComponent(id)}`,
         {
           method: 'GET',
           headers: {
@@ -501,11 +501,11 @@ const Need_Delivery_Component = props => {
       address:
         e.address.details +
         ', ' +
-        e.address.ward +
+        e.address.ward.wardName +
         ', ' +
-        e.address.district +
+        e.address.ward.district.districtName +
         ', ' +
-        e.address.city,
+        e.address.ward.district.city.cityName,
       paymentStatus: e.paymentStatus,
     }));
   }

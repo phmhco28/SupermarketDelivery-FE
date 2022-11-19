@@ -17,7 +17,7 @@ const App = () => {
   return (
     <AuthProvider>
       <NavigationContainer>
-        {user ? <AppStack /> : <AuthStack />}
+        {user ? <AppStack /> : <AuthStack />}        
       </NavigationContainer>
     </AuthProvider>
 );

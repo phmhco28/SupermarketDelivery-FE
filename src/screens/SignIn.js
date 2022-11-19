@@ -21,6 +21,9 @@ import theme from '../constants/theme';
 import {useAuth} from '../store';
 import {AppStack} from '../navigations';
 import ip from '../api';
+import { LogBox } from "react-native"
+
+LogBox.ignoreAllLogs();
 
 const {COLORS, FONTS, SIZES} = theme;
 
@@ -173,6 +176,8 @@ export default function SignIn({navigation}) {
                   placeholder="Nhập CMND hoặc CCCD"
                   style={styles.textInput}
                   autoCapitalize="none"
+                  keyboardType="numeric"
+                  returnKeyType='next'
                   onChangeText={val => onChangeUsr(val)}
                 />
                 {data.check_textInputChange ? (
@@ -200,6 +205,8 @@ export default function SignIn({navigation}) {
                     data.secureTextEntry === false ? false : true
                   }
                   autoCapitalize="none"
+                  returnKeyType='go'
+                  onSubmitEditing= {() => handleFormSubmit()}
                   onChangeText={val => onChangePwr(val)}
                 />
                 <TouchableOpacity onPress={changeSecureTextEntry}>
