@@ -1,4 +1,5 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, memo} from 'react';
+import {ActivityIndicator} from 'react-native';
 import {
   StyleSheet,
   View,
@@ -14,28 +15,87 @@ import 'react-native-gesture-handler';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAuth} from '../store';
 import Moment from 'moment';
 import {FlatList} from 'react-native-gesture-handler';
+import { Camera, useCameraDevices, useFrameProcessor } from 'react-native-vision-camera';
 import ip from '../api';
+import Loading from '../components/loading';
 
 const {COLORS, FONTS, SIZES} = theme;
 const Need_Delivery = 'Need_Delivery';
 const Delivering = 'Delivering';
 const DCompleted = 'DComplete';
+const CameraScan = 'CameraScan';
 
-const Orders = ({navigation}) => {
+const Orders = ({navigation,route}) => {
   const [state, dispatch] = useAuth();
+  const [stateUser, setStateUser] = useState(null);
+  const [statePoint, setStatePoint] = useState(null);
   const [page, setPage] = useState(Need_Delivery);
   const [listOrder, setListOrder] = useState(null);
-  const [orderShipping, setOrderShipping] = useState(null);
+  const [orderShipping, setOrderShipping] = useState(null);  
+  const [hasPermission, setHasPermission] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [root, setRoot] = useState("10.8277883,106.7216705");
+  const [startPoint, setStartPoint] = useState(root);
+  
+  // const [paramReceive, setParamReceive] = useState(null);
+  // useEffect(() => {
+  //   (async() => {
+  //     const value = await route.params.page;
+  //     console.log(value);
+  //     if (value !== null || value !== '' || value !== undefined) {
+  //       setPage(Need_Delivery);
+  //       setOrderShipping(null);
+  //       value = null;
+  //     }
+  //     console.log("outtttttttttttttttttt");
+  //     console.log(value);
+  //     console.log(orderShipping);
+  //   })();
+  // },[]);
 
+
+  useEffect(() => {
+    (async () => {
+      const status = await Camera.requestCameraPermission();
+      setHasPermission(status === 'authorized');
+      const pointValue = await AsyncStorage.getItem('point');
+      const pointData = JSON.parse(pointValue).slice(1);
+      console.log("DATA FROM STORAGE: " + pointData);
+      setStatePoint(pointData);
+      setListOrder(pointData);
+
+      const userValue = await AsyncStorage.getItem('user');
+      setStateUser(JSON.parse(userValue));
+
+    })();
+  },[]);
+  // useEffect(() => {
+  //   const getValue = async () => {
+  //     const value = await AsyncStorage.getItem('user');
+  //     setListPoint(JSON.parse(value));
+  //   };
+  // },[]);
+
+  
   // const [updateOrder, setUpdateOrder] = useState(null);
   //Call API to get list Order need delivery
+
+  // remove first element if orderId null and last element
+  const filterArr = (arr) => {
+    if (arr[0].orderId === null) {
+      return arr.slice(1, -1);
+    }
+    return arr.slice(0, -1);
+  }
+
   const getOrdersOfUser = async id => {
     try {
       const response = await fetch(
-        `http://${ip}/api/v0/orders?accId=${encodeURIComponent(id)}`,
+        `http://${ip}/api/v0/orders/routes?accId=${encodeURIComponent(id)}&geoCoordinate=${encodeURIComponent(startPoint)}`,
         {
           method: 'GET',
           headers: {
@@ -44,16 +104,26 @@ const Orders = ({navigation}) => {
         },
       );
       const data = await response.json();
-      setListOrder(data);
+      const dataFilter = filterArr(data)
+      setListOrder(dataFilter);
+      dispatch({
+        type: 'Point',
+        payload: data.slice(0,-1),
+      });
+      setLoading(false);
     } catch (error) {
       console.error(error);
     }
   };
-  React.useEffect(() => {
-    if (state.user) {
+  useEffect(() => {
+    if (stateUser && statePoint === null) {
+      console.log('call dispatch POINT')
       getOrdersOfUser(state.user.accountId);
     }
-  }, []);
+    else {
+      setListOrder(state.point);
+    }
+  }, [startPoint]);
 
   //Call API to get order delivering
   // const getOrderDelivering = async id => {
@@ -96,6 +166,10 @@ const Orders = ({navigation}) => {
             setListOrder={setListOrder}
             listOrder={listOrder}
             setPage={setPage}
+            page = {page}
+            loading = {loading}
+            setLoading = {setLoading}
+            startPoint = {startPoint}
           />
         ) : null}
         {page === Delivering ? (
@@ -108,6 +182,7 @@ const Orders = ({navigation}) => {
           />
         ) : null}
         {page === DCompleted ? <DCompleted_MidComponent state={state} /> : null}
+        {page === CameraScan ? <CameraScan_Component hasPermission={hasPermission} setPage={setPage}/> : null}
       </View>
     </View>
   );
@@ -178,7 +253,6 @@ const Delivering_MidComponent = ({
   navigation,
 }) => {
   //Call Api to update status orders
-  const [isCancel, setIsCancel] = useState(false);
   const [isConfirm, setIsConfirm] = useState(false);
   const [orderValue, setOrderValue] = useState(null);
   //Call API /orders/delivering
@@ -209,31 +283,7 @@ const Delivering_MidComponent = ({
     }
   }, []);
 
-  //Call API Cancel
-  const CancelOrder = async id => {
-    try {
-      const response = await fetch(
-        `http://${ip}/api/v0/orders/cancel-order/${encodeURIComponent(id)}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  React.useEffect(() => {
-    if (isCancel) {
-      CancelOrder(orderValue.orderId);
-      setIsCancel(false);
-    }
-  }, [isCancel]);
-
+  
   //Call API to confirm delivered
   const ConfirmDelivered = async id => {
     try {
@@ -411,31 +461,20 @@ const Delivering_MidComponent = ({
                   setOrderShipping(null);
                 },
               },
-              {text: 'Quay lại', onPress: () => console.log('cancel')},
+              { text: 'Quay lại', onPress: () => console.log('cancel') },
             ])
           }>
-          <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>
+          <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
             Xác nhận đã giao
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button_change_time}
-          onPress={() =>
-            Alert.alert('Thông báo', 'Xác nhận hủy giao đơn hàng này !', [
-              {
-                text: 'Xác nhận',
-                onPress: () => {
-                  setIsCancel(true);
-                  setOrderShipping(null);
-                  setPage(Need_Delivery);
-                },
-              },
-              {text: 'Quay lại', onPress: () => console.log('cancel')},
-            ])
-          }
-          disabled={orderValue ? false : true}>
-          <Text style={{color: 'black', fontSize: 14}}>Hủy giao</Text>
-        </TouchableOpacity>
+            style={styles.button_change_time}
+            onPress={() => navigation.navigate('ChangeTime', {
+              orderId: orderValue,
+            })} disabled={orderValue ? false : true}>
+            <Text style={{ color: 'black', fontSize: 14 }}>Đổi giờ - hủy giao</Text>
+          </TouchableOpacity>        
       </View>
     </View>
   );
@@ -443,13 +482,21 @@ const Delivering_MidComponent = ({
 
 const Need_Delivery_Component = props => {
   const [selected, setSelected] = useState(null);
-  const [orderSelected, setOrderSelected] = useState(null);
+  const [orderSelected, setOrderSelected] = useState();
+
+  // remove first element if orderId null and last element
+  const filterArr = (arr) => {
+    if (arr[0].orderId === null) {
+      return arr.slice(1, -1);
+    }
+    return arr.slice(0, -1);
+  }
 
   //Call API to re render list Order need delivery
   const reRenderOrdersOfUser = async id => {
     try {
       const response = await fetch(
-        `http://${ip}/api/v0/orders?accId=${encodeURIComponent(id)}`,
+        `http://${ip}/api/v0/orders/routes?accId=${encodeURIComponent(id)}&geoCoordinate=${encodeURIComponent(props.startPoint)}`,
         {
           method: 'GET',
           headers: {
@@ -458,18 +505,20 @@ const Need_Delivery_Component = props => {
         },
       );
       const data = await response.json();
-      props.setListOrder(data);
+      const dataFilter = filterArr(data);
+      props.setListOrder(dataFilter);
+      props.setLoading(false);
     } catch (error) {
       console.error(error);
     }
   };
-  React.useEffect(() => {
+  useEffect(() => {
     if (props.state.user) {
       reRenderOrdersOfUser(props.state.user.accountId);
     }
   }, []);
 
-  function handleSelection(id) {
+  function handleSelection(id, ordId) {
     var selectedId = selected;
     // console.log('id: ' + id);
     // console.log('selected trong kho: ' + selected);
@@ -481,13 +530,17 @@ const Need_Delivery_Component = props => {
       setOrderSelected(null);
     } else {
       setSelected(id);
-      setOrderSelected(listNeedDelivery.find(e => e.key === id));
+      setOrderSelected(ordId);
     }
   }
   function formatDeliveryTime(str1, str2) {
     return str1.slice(0, 2) + 'h -' + str2.slice(0, 2) + 'h';
   }
+  
   let listNeedDelivery = null;
+  console.log("propsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
+  console.log(props.listOrder)
+  console.log("propsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
   if (props.listOrder) {
     listNeedDelivery = props.listOrder.map((e, index) => ({
       key: index,
@@ -497,7 +550,6 @@ const Need_Delivery_Component = props => {
       paymentAmount: e.paymentAmount,
       customerName: e.customerName,
       customerPhone: e.customerPhone,
-      gps: e.locationGps,
       address:
         e.address.details +
         ', ' +
@@ -509,6 +561,7 @@ const Need_Delivery_Component = props => {
       paymentStatus: e.paymentStatus,
     }));
   }
+  
 
   const [isSending, setIsSending] = useState(false);
   const ConfirmDelivery = async id => {
@@ -524,14 +577,13 @@ const Need_Delivery_Component = props => {
       );
       const data = await response.json();
       props.setOrderShipping(data);
-      console.log(data);
     } catch (error) {
       console.error(error);
     }
   };
   React.useEffect(() => {
     if (isSending) {
-      ConfirmDelivery(orderSelected.orderId);
+      ConfirmDelivery(orderSelected);
       setIsSending(false);
     }
   }, [isSending]);
@@ -547,6 +599,67 @@ const Need_Delivery_Component = props => {
       {text: 'OK', onPress: () => setSelected(null)},
     ]);
   }
+
+  const Item = ({item, onPress, backgroundColor}) => {
+    return (
+      <ScrollView>
+        <TouchableOpacity onPress={onPress}>
+          <View
+            style={[styles.table_column, {backgroundColor: backgroundColor }]}>
+            <View style={styles.table_data_column_left}>
+              <Text style={{ fontSize: 16 }}>
+                <Text style={{ fontWeight: 'bold' }}>Mã đơn: </Text>
+                {item.orderId}
+              </Text>
+              <Text style={{ fontSize: 16 }}>
+                <Text style={{ fontWeight: 'bold' }}>
+                  Thời gian giao:{' '}
+                </Text>
+                {formatDeliveryTime(
+                  item.startingTimes,
+                  item.endingTimes,
+                )}
+              </Text>
+              <Text style={{ fontSize: 16 }}>
+                <Text style={{ fontWeight: 'bold' }}>Tiền hàng: </Text>
+                {item.paymentAmount} VNĐ
+              </Text>
+              <Text style={{ fontSize: 16 }}>
+                <Text style={{ fontWeight: 'bold' }}>Tên KH: </Text>{' '}
+                {item.customerName}
+              </Text>
+              <Text style={{ fontSize: 16 }}>
+                <Text style={{ fontWeight: 'bold' }}>SĐT: </Text>{' '}
+                {item.customerPhone}
+              </Text>
+              <Text style={{ fontSize: 16 }}>
+                <Text style={{ fontWeight: 'bold' }}>ĐC: </Text>{' '}
+                {item.address}
+              </Text>
+            </View>
+            <View style={styles.table_data_column_right}>
+              <Text style={{ fontWeight: 'bold', textAlign: 'center' }}>
+                {item.paymentStatus
+                  ? 'Đã thanh toán'
+                  : 'Chưa thanh toán'}
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
+
+  const renderItem = ({item}) => {
+    const backgroundColor = item.orderId === orderSelected ? (COLORS.greenSelected) : (COLORS.green);
+    return (
+        <Item
+        item={item}
+        onPress={() => setOrderSelected(item.orderId)}
+        backgroundColor={backgroundColor}/>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {/* tab button scan */}
@@ -556,7 +669,11 @@ const Need_Delivery_Component = props => {
             style={{
               flexDirection: 'row',
               justifyContent: 'space-around',
-            }}>
+            }}
+            onPress={() => {
+              props.setPage(CameraScan);
+            }}
+            >
             <Text
               style={{
                 color: 'white',
@@ -597,67 +714,17 @@ const Need_Delivery_Component = props => {
           </View>
         </View>
         <View style={styles.table_data}>
-          <FlatList
+          {props.loading === true ? (
+           <Loading/>
+          ) : (
+            <FlatList
             data={listNeedDelivery}
-            extraData={setSelected}
-            keyExtractor={item => item.key}
-            renderItem={({item, index}) => {
-              return (
-                <ScrollView>
-                  <TouchableOpacity onPress={() => handleSelection(index)}>
-                    <View
-                      style={
-                        index === selected
-                          ? [
-                              styles.table_column,
-                              {backgroundColor: COLORS.greenSelected},
-                            ]
-                          : styles.table_column
-                      }>
-                      <View style={styles.table_data_column_left}>
-                        <Text style={{fontSize: 16}}>
-                          <Text style={{fontWeight: 'bold'}}>Mã đơn: </Text>
-                          {item.orderId}
-                        </Text>
-                        <Text style={{fontSize: 16}}>
-                          <Text style={{fontWeight: 'bold'}}>
-                            Thời gian giao:{' '}
-                          </Text>
-                          {formatDeliveryTime(
-                            item.startingTimes,
-                            item.endingTimes,
-                          )}
-                        </Text>
-                        <Text style={{fontSize: 16}}>
-                          <Text style={{fontWeight: 'bold'}}>Tiền hàng: </Text>
-                          {item.paymentAmount} VNĐ
-                        </Text>
-                        <Text style={{fontSize: 16}}>
-                          <Text style={{fontWeight: 'bold'}}>Tên KH: </Text>{' '}
-                          {item.customerName}
-                        </Text>
-                        <Text style={{fontSize: 16}}>
-                          <Text style={{fontWeight: 'bold'}}>SĐT: </Text>{' '}
-                          {item.customerPhone}
-                        </Text>
-                        <Text style={{fontSize: 16}}>
-                          <Text style={{fontWeight: 'bold'}}>ĐC: </Text>{' '}
-                          {item.address}
-                        </Text>
-                      </View>
-                      <View style={styles.table_data_column_right}>
-                        <Text style={{fontWeight: 'bold', textAlign: 'center'}}>
-                          {item.paymentStatus
-                            ? 'Đã thanh toán'
-                            : 'Chưa thanh toán'}
-                        </Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                </ScrollView>
-              );
-            }}
+            extraData={orderSelected}
+            initialNumToRender={3}
+            keyExtractor={item => item.orderId}
+            renderItem={renderItem}
           />
+          )}
         </View>
       </View>
 
@@ -677,6 +744,37 @@ const Need_Delivery_Component = props => {
     </View>
   );
 };
+
+const CameraScan_Component = props => {
+  
+  const devices = useCameraDevices();
+  const device = devices.back;
+    return (
+      <View style={{flex: 1}}>
+        <View style={{flex: 1}}>
+          {device != null &&
+          props.hasPermission && (
+          <>
+            <Camera
+              style={StyleSheet.absoluteFill}
+              device={device}
+              isActive={true}
+            />
+          </>
+      )}
+          <View style={styles.header_left}>
+          <TouchableOpacity
+            onPress={() => {
+              props.setPage(Need_Delivery);
+            }}>
+            <FeatherIcon name="arrow-left" color="white" size={35} />
+          </TouchableOpacity>
+        </View>
+        </View>
+    </View>
+    );
+};
+
 const TopComponent = ({navigation, page, setPage}) => {
   return (
     <View style={styles.container}>
@@ -742,6 +840,11 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#f0f8ff',
   },
+  horizontal: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
+  },
   box: {
     marginTop: 8,
     borderWidth: 1,
@@ -752,6 +855,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button_submit_done: {
+    alignSelf: 'center',
     margin: 8,
     marginTop: 32,
     width: '45%',
@@ -774,11 +878,26 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   text_space_between: {
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: 0,
     paddingLeft: 0,
     paddingRight: 16,
+  },
+  button_delivering_page: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    paddingTop: 0,
+    paddingLeft: 0,
+    paddingRight: 16,
+  },
+  button_cancel_change: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 0,
+    paddingLeft: 0,
   },
   text_order_info: {
     margin: 4,

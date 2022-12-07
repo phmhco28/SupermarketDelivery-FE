@@ -113,13 +113,13 @@ const Shift = ({navigation}) => {
 
     return getDay.map((item, index) => {
       return Number(item.shiftId) === index + 1 ? (
-        <View style={styles.t_row}>
+        <View key={index} style={styles.t_row}>
           <TouchableOpacity>
             <View style={styles.checkBox_checked} />
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={styles.t_row}>
+        <View key={index} style={styles.t_row}>
           <TouchableOpacity>
             <View style={styles.checkBox} />
           </TouchableOpacity>
@@ -140,7 +140,7 @@ const Shift = ({navigation}) => {
   function renderView() {
     return week.map(({key, value}) => {
       return (
-        <View style={styles.t_column}>
+        <View key={key} style={styles.t_column}>
           <Text style={styles.t_row_header}>{value}</Text>
           {checkDay(key) ? renderCheckedBox(key) : renderUnCheckBox()}
         </View>

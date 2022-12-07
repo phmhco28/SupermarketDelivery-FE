@@ -18,6 +18,7 @@ const App = () => {
     <AuthProvider>
       <NavigationContainer>
         {user ? <AppStack /> : <AuthStack />}        
+        {/* <AppStack /> */}
       </NavigationContainer>
     </AuthProvider>
 );

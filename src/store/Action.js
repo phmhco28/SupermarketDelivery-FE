@@ -13,6 +13,17 @@ export const Map = payload => ({
   payload,
 });
 
+export const Point = payload => ({
+  type: 'Point',
+  payload,
+});
+
+export const RemovePoint = payload => ({
+  type: 'RemovePoint',
+  payload,
+});
+
+
 export const getUser = payload => ({
   type: 'getUser',
   payload,

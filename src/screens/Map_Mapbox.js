@@ -5,26 +5,255 @@ import {
   Text,
   SafeAreaView,
   TouchableOpacity,
+  ImageBackground,
 } from 'react-native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 // import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import MapboxGL from "@rnmapbox/maps"; 
-import { LogBox } from "react-native"
+import { LogBox } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+//import {lineString as makeLineString} from '@turf/helpers';
+import goongDirections  from '@goongmaps/goong-sdk/services/directions';
+import polyline from '@mapbox/polyline';
+import { GOONG_MAPS_TOKEN , GOONG_SERVICES_TOKEN, MAPBOX_TOKEN } from '@env'
+import { Image } from 'react-native-animatable';
+import ip from '../api';
+import {useAuth} from '../store';
 
-LogBox.ignoreAllLogs();
 MapboxGL.setWellKnownTileServer('Mapbox');
-MapboxGL.setAccessToken('pk.eyJ1IjoiY29taW5ocGhhbSIsImEiOiJjbDR4ZTd3YmYxZmFyM2RtemswcjhwNDV5In0.Gt54iWoEpzk2JpM8nLGTow');
+MapboxGL.setAccessToken(MAPBOX_TOKEN);
+
+const directionService = goongDirections({accessToken: GOONG_SERVICES_TOKEN});
+
+const Map_Mapbox = ({navigation, route}) => {
+  const startingPoint = [106.7216705,10.8277883]; 
+  const destinationPoint = [ 106.7580315,10.8546373 ];
+  const destinationPoint2 = [106.782914,10.8555748];
+  //const [coordinates, setCoordinates] = useState([106.7226893,10.8282865]);
+  const [routes, setRoutes] = useState(null);
+  const [route1, setRoute1] = useState(null);
 
 
-const Map_Mapbox = ({navigation}) => {
-  const [coordinates, setCoordinates] = useState([106.7226893,10.8282865]);
-    const [position, setPosition] = React.useState({
-      latitude: 10,
-      longitude: 10,
-      latitudeDelta: 10.8282865,
-      longitudeDelta: 106.7275608,
-    });
+  const [orderDelivering, setOrderDelivering] = useState(null);
+  const [point, setPoint] = useState({ "destination": "10.8546373,106.7580315", "distance": "0.505", "duration": "292", "orderId": "206222SHA", "origin": "10.8563546,106.7550549" });
+  const [listPoint, setListPoint] = useState(null);
+  const [state, dispatch] = useAuth();
+  useEffect(() => {
+    (async () => {
+      const value = await AsyncStorage.getItem('point');
+
+      if (value !== null) {
+        setListPoint(JSON.parse(value));
+      }
+    })();
+  }, []);
+
+    // //getListOrders need delivery and save to state point
+    // remove first element if orderId null and last element
+    const filterArr = (arr) => {
+      if (arr[0].orderId === null) {
+        return arr.slice(1, -1);
+      }
+      return arr.slice(0, -1);
+    }
+    const getListOrders = async id => {
+      try {
+        const response = await fetch(
+          `http://${ip}/api/v0/orders/routes?accId=${encodeURIComponent(id)}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+        const data = await response.json();
+        // console.log(data);
+        setListPoint(filterArr(data));
+        dispatch({
+          type: 'Point',
+          payload: data.slice(0,-1),
+        });
+        // props.setLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const getDelivering = async id => {
+      try {
+        const response = await fetch(
+          `http://${ip}/api/v0/orders/delivering?accId=${encodeURIComponent(id)}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+        const data = await response.json();
+        // console.log(data);
+        setOrderDelivering(data);
+        // props.setLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+  
+    useEffect(() => {
+      if (listPoint === null) {
+        getListOrders(state.user.accountId);
+      }
+      getDelivering(state.user.accountId);
+    }, []);
+
+    
+
+    // useEffect(() => {
+    //   if (listPoint !== null) {
+    //     const p = listPoint.find(element => element.orderId === orderDelivering.orderId);
+    //     setPoint(p);
+    //   }
+      
+    // },[])
+    useEffect(() => {
+      if (listPoint !== null && point !== null) {
+        fetchRoute(point.origin, point.destination);
+      }
+    },[])
+    
+    const fetchRoute = async (origins,destinations) => {
+      const reqOptions = {
+        origin: origins,
+        destination: destinations,
+        alternatives: true,
+        vehicle: 'bike'
+      };
+  
+      const res = await directionService.getDirections(reqOptions).send();
+      
+      const direstions = res.body;
+      const routee = direstions.routes[0];
+      const geometry_string = routee.overview_polyline.points;
+
+      
+      const geoJSON = polyline.toGeoJSON(geometry_string);
+
+      //const newRoute = makeLineString(geoJSON.coordinates);
+      setRoutes(geoJSON);
+      
+    };
+    
+
+    // const fetchRoute1 = async (lat) => {
+    //   const reqOptions = {
+    //     origin: '10.8546373,106.7580315',
+    //     destination: lat,
+    //     alternatives: true,
+    //     vehicle: 'bike'
+    //   };
+  
+    //   const res = await directionService.getDirections(reqOptions).send();
+      
+    //   const direstions = res.body;
+    //   const routee = direstions.routes[0];
+    //   const geometry_string = routee.overview_polyline.points;
+
+      
+    //   const geoJSON = polyline.toGeoJSON(geometry_string);
+
+    //   //const newRoute = makeLineString(geoJSON.coordinates);
+    //   setRoute1(geoJSON);
+    // };
+
+    const RenderRoute = (props) => {
+      return (
+        <MapboxGL.ShapeSource id={props.shapeID} shape={props.routeInput}>
+          <MapboxGL.LineLayer id={props.lineID} style={{lineWidth: 7, lineCap: 'round', lineJoin: 'round', lineColor: '#1e88e5'}} />
+        </MapboxGL.ShapeSource>
+      );
+    }
+
+
+    const ShowInfoOrder = (props) => {
+      return (
+        <View>
+          <Text>{props.text}</Text>
+        </View>
+      )
+    }
+
+    const RenderAnnotations = (props) => {
+      return (
+        <MapboxGL.PointAnnotation
+          id={props.id}
+          coordinate={props.coor}>
+          <View >
+            <Image
+              source={require("../assets/images/location.png")}
+              style={{
+                width: 30,
+                height: 30,
+                // backgroundColor: "red",
+                resizeMode: "cover",
+              }}
+            />
+          </View>
+        </MapboxGL.PointAnnotation>
+      );
+    }
+
+    const reverse = (str) => {
+      const reverseGeo = str.split(',');
+      let arr = [];
+      arr.push(Number(reverseGeo[1]));
+      arr.push(Number(reverseGeo[0]));
+      return  arr;
+    }
+
+    const convertListPoint = () => {
+      let arr=[];
+      if (listPoint !== null) {
+          arr = listPoint.map((e, index) => ({
+          key: index+'',
+          point: reverse(e.origin),
+        }))
+      }
+      return arr;
+    } 
+
+    const RenderPoint = () => {
+      const list =  convertListPoint();
+      return list.map((item, index) => {
+        return (
+          <RenderAnnotations key={index} id={item.key} coor={item.point}/>
+        );
+      })
+    }
+
+    const RenderMarkers = () => {
+      return (
+        <MapboxGL.MarkerView id={"marker"} coordinate={destinationPoint2}>
+          <View>
+            <View style={styles.markerContainer}>
+              <View style={styles.textContainer}>
+                <Text style={styles.text}>{"Đơn hàng 1"}</Text>
+              </View>
+              <Image
+                  source={require("../assets/images/location.png")}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    // backgroundColor: "red",
+                    resizeMode: "cover",
+                  }}
+                />  
+            </View>
+          </View>
+        </MapboxGL.MarkerView>
+      );
+    }
   // React.useEffect(() => {
   //   MapboxGL.setAccessToken('pk.eyJ1IjoiY29taW5ocGhhbSIsImEiOiJjbDR4ZTd3YmYxZmFyM2RtemswcjhwNDV5In0.Gt54iWoEpzk2JpM8nLGTow');
   //   Geolocation.getCurrentPosition(pos => {
@@ -41,19 +270,31 @@ const Map_Mapbox = ({navigation}) => {
   // }, []);
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(false);
-  });
+  },[]);
   function renderMap() {        
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <View style={{height: "100%", width: "100%"}}>
-          <MapboxGL.MapView showUserLocation={true} style={{flex: 1}} styleURL='https://tiles.goong.io/assets/goong_map_web.json?api_key=qIVeectWKhDORT4uzT5U0yx0COCj9T0ddLUYdFJz'>  
+          <MapboxGL.MapView  zoomLevel={13} style={{flex: 1}} styleURL={`https://tiles.goong.io/assets/goong_map_web.json?api_key=${GOONG_MAPS_TOKEN}`}>  
           {/* styleJSON={JSON.stringify(defaultStyle)}  */}
-          <MapboxGL.Camera zoomLevel={15}
-            centerCoordinate={coordinates} 
+          <MapboxGL.Camera zoomLevel={16}
+            centerCoordinate={startingPoint}
+            animationMode={'flyTo'}
+            animationDuration={0}
             //followUserLocation={true}
           />
-           <MapboxGL.PointAnnotation coordinate={coordinates} />
-          {/* <MapboxGL.UserLocation visible={true}/> */}
+          <MapboxGL.PointAnnotation id={'root'} coordinate={startingPoint}/>
+
+           {point !== null && listPoint !== null? <RenderRoute shapeID='shapSource1' lineID= 'lineLayer' routeInput = {routes}/> : null}
+           {/* <RenderMarkers/> */}
+          <MapboxGL.UserLocation visible={true}/>
+          {listPoint !== null ? <RenderPoint /> : null}
+          {/* {RenderRoute()}
+          {console.log(routes)} */}
+          {/* <RenderRoute /> */}
+          {/* <RenderRoute shapeID='shapSource1' lineID= 'lineLayer' routeInput = {routes}/> */}
+          {/* {renderPoint()} */}
+          {/* <RenderRoute shapeID='shapSource2' lineID = 'lineLayer2' routeInput = {route1}/> */}
           </MapboxGL.MapView>
         </View>
       </View>
@@ -92,62 +333,37 @@ const Map_Mapbox = ({navigation}) => {
 };
 
 export default Map_Mapbox;
-const TopComponent = ({navigation}) => {
-  return (
-    <View style={styles.container}>
-      {/* header ========================================================*/}
-      <View style={styles.header_container}>
-        <View style={styles.header_left}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.openDrawer();
-            }}>
-            <FeatherIcon name="menu" color="white" size={27} />
-          </TouchableOpacity>
-        </View>
-        <View>
-          <Text style={styles.header_text}>BẢN ĐỒ</Text>
-        </View>
-        <View>
-          <TouchableOpacity>
-            <FontAwesomeIcon name="bell" color="white" size={24} />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
-};
 
-const defaultStyle = {
-  version: 8,
-  name: 'Land',
-  sources: {
-    map: {
-      type: 'raster',
-      tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
-      tileSize: 256,
-      minzoom: 1,
-      maxzoom: 19,
-    },
-  },
-  layers: [
-    {
-      id: 'background',
-      type: 'background',
-      paint: {
-        'background-color': '#f2efea',
-      },
-    },
-    {
-      id: 'map',
-      type: 'raster',
-      source: 'map',
-      paint: {
-        'raster-fade-duration': 100,
-      },
-    },
-  ],
-};
+// const defaultStyle = {
+//   version: 8,
+//   name: 'Land',
+//   sources: {
+//     map: {
+//       type: 'raster',
+//       tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+//       tileSize: 256,
+//       minzoom: 1,
+//       maxzoom: 19,
+//     },
+//   },
+//   layers: [
+//     {
+//       id: 'background',
+//       type: 'background',
+//       paint: {
+//         'background-color': '#f2efea',
+//       },
+//     },
+//     {
+//       id: 'map',
+//       type: 'raster',
+//       source: 'map',
+//       paint: {
+//         'raster-fade-duration': 100,
+//       },
+//     },
+//   ],
+// };
 
 const styles = StyleSheet.create({
   container: {
@@ -178,4 +394,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20,
   },
+  markerContainer: {
+    alignItems: "center",
+    width: 60,
+    backgroundColor: "transparent",
+    height: 70,
+  },
+  textContainer: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  text: {
+    textAlign: "center",
+    paddingHorizontal: 5,
+    flex: 1,
+  },
+
 });

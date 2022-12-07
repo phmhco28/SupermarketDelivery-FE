@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState}from 'react';
 import {
   StyleSheet,
   View,
@@ -12,6 +12,7 @@ import theme from '../constants/theme';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+
 
 import 'react-native-gesture-handler';
 
@@ -36,6 +37,7 @@ const Home = ({navigation}) => {
   // }
   // render() {
   //const {boxes} = this.state;
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />

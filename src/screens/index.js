@@ -2,6 +2,7 @@ import OnBoarding from './OnBoarding';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
 import DrawerScreen from './DrawerScreen';
+import ChangeTime from './ChangeTime';
 //Loc
 import Home from './Home';
 import Orders from './Orders';
@@ -21,4 +22,5 @@ export {
   Map_Mapbox,
   Shift,
   Payment,
+  ChangeTime,
 };

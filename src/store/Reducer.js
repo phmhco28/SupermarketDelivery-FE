@@ -4,11 +4,21 @@ const initState = {
   isAuthenticated: false,
   user: null,
   token: null,
-  map: {
-    address: null,
-    gps: null,
-  },
+  map: null,
+  point: null,
 };
+
+const removeItem = async(key) => {
+  try {
+    await AsyncStorage.removeItem(key);
+    console.log('Remove ' + key + 'success');
+    return true;
+  }
+  catch (exception) {
+    console.log('Remove fail');
+    return false;
+  }
+}
 
 function AuthReducer(state, action) {
   switch (action.type) {
@@ -65,10 +75,7 @@ function AuthReducer(state, action) {
         user: action.payload,
       };
     case 'Logout':
-      const clearData = async () => {
-        await AsyncStorage.clear();
-      };
-      clearData();
+      removeItem('user');
       return {
         ...state,
         isAuthenticated: false,
@@ -77,7 +84,27 @@ function AuthReducer(state, action) {
     case 'Map':
       return {
         ...state,
-        map: {address: action.payload.address, gps: action.payload.gps},
+        map: action.payload,
+      };
+    case 'Point':
+      const listPoint = async () => {
+        if (action.payload) {
+
+          await AsyncStorage.setItem('point', JSON.stringify(action.payload));
+          console.log('Save list point success');
+        }
+        return;
+      };
+      listPoint();
+      return {
+        ...state,
+        point: action.payload,
+      };
+    case 'RemovePoint':
+      removeItem('point');
+      return {
+        ...state,
+        point: null,
       };
     case 'getUser':
 
