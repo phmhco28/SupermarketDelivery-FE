@@ -4,14 +4,18 @@ const initState = {
   isAuthenticated: false,
   user: null,
   token: null,
+  listPointOfOrders: null,
   map: null,
   point: null,
+  delivering: null,
+  completed: null,
+  reRender: false,
 };
 
 const removeItem = async(key) => {
   try {
     await AsyncStorage.removeItem(key);
-    console.log('Remove ' + key + 'success');
+    console.log('Remove ' + key + ' success');
     return true;
   }
   catch (exception) {
@@ -81,11 +85,42 @@ function AuthReducer(state, action) {
         isAuthenticated: false,
         user: null,
       };
+    case 'listPointOfOrder':
+      const getList = async () => {
+        if (action.payload) {
+          await AsyncStorage.setItem('listPointOfOrder', JSON.stringify(action.payload));
+          console.log('Save listPointOfOrder success');
+        }
+        return;
+      };
+      getList();
+      return {
+        ...state,
+        listPointOfOrders: action.payload,
+      }
+    case 'getList':
+      return {
+        ...state,
+        listPointOfOrders: action.payload,
+      }    
     case 'Map':
+      const map = async () => {
+        if (action.payload) {
+          await AsyncStorage.setItem('map', JSON.stringify(action.payload));
+          console.log('Save map success');
+        }
+        return;
+      };
+      map();
       return {
         ...state,
         map: action.payload,
       };
+    case 'getMap': 
+      return {
+        ...state,
+        map: action.payload,
+      }  
     case 'Point':
       const listPoint = async () => {
         if (action.payload) {
@@ -112,6 +147,64 @@ function AuthReducer(state, action) {
         ...state,
         user: action.payload,
       }
+    case 'getListPoint':
+      return {
+        ...state,
+        point: action.payload,
+      }
+    case 'delivering':
+      const orderDelivering = async () => {
+        if (action.payload) {
+          await AsyncStorage.setItem('delivering', JSON.stringify(action.payload));
+          console.log('Save order delivering success');
+        }
+        return;
+      };
+      orderDelivering();
+      return {
+        ...state,
+        delivering: action.payload,
+      }
+    case 'removeDelivering':
+      removeItem('delivering');
+      return {
+        ...state,
+        delivering: null,
+      }    
+    case 'getDelivering':
+      return {
+        ...state,
+        delivering: action.payload,
+      }
+    case 'completed':
+      const orderCompleted = async () => {
+        if (action.payload) {
+          await AsyncStorage.setItem('completed', JSON.stringify(action.payload));
+          console.log('Save order completed success');
+        }
+        return;
+      };
+      orderCompleted();
+      return {
+        ...state,
+        completed: action.payload,
+      }
+    case 'getCompleted':
+      return {
+        ...state,
+        completed: action.payload,
+      }      
+    case 'reRender':
+      return {
+        ...state,
+        reRender: action.payload,
+      }
+      case 'removeListPointOfOrder':
+        removeItem('listPointOfOrder');
+        return {
+          ...state,
+          delivering: null,
+        }  
     default:
       return state;
   }

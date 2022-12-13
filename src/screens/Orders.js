@@ -31,46 +31,48 @@ const CameraScan = 'CameraScan';
 
 const Orders = ({navigation,route}) => {
   const [state, dispatch] = useAuth();
-  const [stateUser, setStateUser] = useState(null);
-  const [statePoint, setStatePoint] = useState(null);
   const [page, setPage] = useState(Need_Delivery);
   const [listOrder, setListOrder] = useState(null);
   const [orderShipping, setOrderShipping] = useState(null);  
+  const [orderComplete, setOrderComplete] = useState(null);
   const [hasPermission, setHasPermission] = useState(false);
   const [loading, setLoading] = useState(true);
   const [root, setRoot] = useState("10.8277883,106.7216705");
   const [startPoint, setStartPoint] = useState(root);
+  const [confirm, setConfirm] = useState(false);
+  const [runGetDelivering, setRunGetDelivering] = useState(false);
+  const [runGetNeeded, setRunGetNeeded] = useState(false);
   
-  // const [paramReceive, setParamReceive] = useState(null);
-  // useEffect(() => {
-  //   (async() => {
-  //     const value = await route.params.page;
-  //     console.log(value);
-  //     if (value !== null || value !== '' || value !== undefined) {
-  //       setPage(Need_Delivery);
-  //       setOrderShipping(null);
-  //       value = null;
-  //     }
-  //     console.log("outtttttttttttttttttt");
-  //     console.log(value);
-  //     console.log(orderShipping);
-  //   })();
-  // },[]);
-
+  const [paramReceive, setParamReceive] = useState(null);
+  useEffect(() => {
+    (async() => {
+      // let value = await route.params.page;
+      // console.log(value);
+      // if (value !== null || value !== '' || value !== undefined) {
+      //   setPage(value);
+      //   setRunGetNeeded(true);
+      //   setOrderShipping(null);
+      //   value = null;
+      // }
+      // console.log("outtttttttttttttttttt");
+      // console.log(value);
+      // console.log(orderShipping);
+      if (state.reRender) {
+        setLoading(true);
+        setPage('Need_Delivery');
+        setListOrder(state.point[0].orderId === null ? state.point.slice(1) : state.point);
+        setOrderShipping(null);
+        dispatch({type: 'reRender', payload: false}); 
+        setRunGetNeeded(true);
+        console.log('excecuteee');     
+      }
+    })();
+  },[state.reRender]);
 
   useEffect(() => {
     (async () => {
       const status = await Camera.requestCameraPermission();
       setHasPermission(status === 'authorized');
-      const pointValue = await AsyncStorage.getItem('point');
-      const pointData = JSON.parse(pointValue).slice(1);
-      console.log("DATA FROM STORAGE: " + pointData);
-      setStatePoint(pointData);
-      setListOrder(pointData);
-
-      const userValue = await AsyncStorage.getItem('user');
-      setStateUser(JSON.parse(userValue));
-
     })();
   },[]);
   // useEffect(() => {
@@ -85,13 +87,14 @@ const Orders = ({navigation,route}) => {
   //Call API to get list Order need delivery
 
   // remove first element if orderId null and last element
+  
   const filterArr = (arr) => {
     if (arr[0].orderId === null) {
       return arr.slice(1, -1);
     }
     return arr.slice(0, -1);
   }
-
+  //Call API to get order need delivery
   const getOrdersOfUser = async id => {
     try {
       const response = await fetch(
@@ -106,51 +109,79 @@ const Orders = ({navigation,route}) => {
       const data = await response.json();
       const dataFilter = filterArr(data)
       setListOrder(dataFilter);
-      dispatch({
+      await dispatch({
         type: 'Point',
+        payload: data.slice(0,-1),
+      });
+      dispatch({
+        type: 'listPointOfOrder',
         payload: data.slice(0,-1),
       });
       setLoading(false);
     } catch (error) {
       console.error(error);
     }
+  };  
+  //Call API to get order delivering
+  const getOrderDelivering = async id => {
+    try {
+      const response = await fetch(
+        `http://${ip}/api/v0/orders/delivering?accId=${encodeURIComponent(id)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      if (response.status === 500) {
+        return;
+      }
+      const data = await response.json();
+      setOrderShipping(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
+  //Call API to get list order complete
+  const getOrderComplete = async () => {
+    try {
+      const response = await fetch(`http://${ip}/api/v0/orders/complete`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      setOrderComplete(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  //UseEffect
   useEffect(() => {
-    if (stateUser && statePoint === null) {
+    if (state.user && state.point === null) {
       console.log('call dispatch POINT')
       getOrdersOfUser(state.user.accountId);
+      // setLoading(false);
     }
-    else {
-      setListOrder(state.point);
+    else if (state.point !== null) {
+      setListOrder(state.point.slice(1));
+      // setLoading(false);
     }
-  }, [startPoint]);
-
-  //Call API to get order delivering
-  // const getOrderDelivering = async id => {
-  //   try {
-  //     const response = await fetch(
-  //       `http://${ip}/api/v0/orders/delivering?id=${encodeURIComponent(id)}`,
-  //       {
-  //         method: 'GET',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       },
-  //     );
-  //     if (response.status === 500) {
-  //       return;
-  //     }
-  //     const data = await response.json();
-  //     setOrderShipping(data);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-  // React.useEffect(() => {
-  //   if (state.user) {
-  //     getOrderDelivering(state.user.accountId);
-  //   }
-  // }, []);
+  }, []);
+  useEffect(() => {
+    if (state.user) {
+      getOrderComplete();
+      setConfirm(false);
+    }
+  }, [confirm]);
+  useEffect(() => {
+    if (state.user) {
+      getOrderDelivering(state.user.accountId);
+      setRunGetDelivering(false);
+    }
+  },[runGetDelivering]);
 
   return (
     <View style={styles.container}>
@@ -161,6 +192,7 @@ const Orders = ({navigation,route}) => {
         {page === Need_Delivery ? (
           <Need_Delivery_Component
             state={state}
+            dispatch={dispatch}
             setOrderShipping={setOrderShipping}
             orderShipping={orderShipping}
             setListOrder={setListOrder}
@@ -170,6 +202,12 @@ const Orders = ({navigation,route}) => {
             loading = {loading}
             setLoading = {setLoading}
             startPoint = {startPoint}
+            navigation = {navigation}
+            setRunGetDelivering = {setRunGetDelivering}
+            runGetNeeded={runGetNeeded}
+            setRunGetNeeded={setRunGetNeeded}
+
+
           />
         ) : null}
         {page === Delivering ? (
@@ -179,9 +217,13 @@ const Orders = ({navigation,route}) => {
             orderShipping={orderShipping}
             setOrderShipping={setOrderShipping}
             navigation={navigation}
+            setConfirm={setConfirm}
+            dispatch= {dispatch}
+            loading={loading}
+            setLoading={setLoading}
           />
         ) : null}
-        {page === DCompleted ? <DCompleted_MidComponent state={state} /> : null}
+        {page === DCompleted ? <DCompleted_MidComponent state={state} orderComplete = {orderComplete}/> : null}
         {page === CameraScan ? <CameraScan_Component hasPermission={hasPermission} setPage={setPage}/> : null}
       </View>
     </View>
@@ -190,34 +232,13 @@ const Orders = ({navigation,route}) => {
 
 export default Orders;
 
-const DCompleted_MidComponent = ({state}) => {
-  //Call API /orders/completed
-  const [completed, setCompleted] = useState(null);
-  const getOrderComplete = async () => {
-    try {
-      const response = await fetch(`http://${ip}/api/v0/orders/complete`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      setCompleted(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  React.useEffect(() => {
-    if (state.user) {
-      getOrderComplete();
-    }
-  }, []);
+const DCompleted_MidComponent = ({state, orderComplete}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.text_order_info}>Đơn đã giao trong ngày</Text>
       {/* {completed ? ( */}
       <FlatList
-        data={completed}
+        data={orderComplete}
         keyExtractor={item => item.orderId}
         renderItem={({item, index}) => {
           return (
@@ -247,14 +268,18 @@ const DCompleted_MidComponent = ({state}) => {
 
 const Delivering_MidComponent = ({
   setPage,
-  // orderShipping,
+  orderShipping,
   setOrderShipping,
   state,
   navigation,
+  setConfirm,
+  dispatch,
+  loading, setLoading,
 }) => {
   //Call Api to update status orders
   const [isConfirm, setIsConfirm] = useState(false);
-  const [orderValue, setOrderValue] = useState(null);
+  const [orderValue, setOrderValue] = useState(orderShipping);
+
   //Call API /orders/delivering
   const getOrderDelivering = async id => {
     try {
@@ -273,17 +298,15 @@ const Delivering_MidComponent = ({
       const data = await response.json();
       setOrderShipping(data);
       setOrderValue(data);
+      setLoading(false);
     } catch (error) {
       console.error(error);
     }
   };
-  React.useEffect(() => {
-    if (state.user) {
-      getOrderDelivering(state.user.accountId);
-    }
+  useEffect(() => {
+    getOrderDelivering(state.user.accountId);
   }, []);
 
-  
   //Call API to confirm delivered
   const ConfirmDelivered = async id => {
     try {
@@ -299,12 +322,11 @@ const Delivering_MidComponent = ({
         },
       );
       const data = await response.json();
-      console.log(data);
     } catch (error) {
       console.error(error);
     }
   };
-  React.useEffect(() => {
+  useEffect(() => {
     if (isConfirm) {
       ConfirmDelivered(orderValue.orderId);
       setIsConfirm(false);
@@ -345,145 +367,134 @@ const Delivering_MidComponent = ({
     return <Text />;
   }
   return (
-    <View style={styles.container}>
-      {/* order's info */}
-      <View>
-        <View style={styles.text_space_between}>
-          <Text style={[styles.text_order_info, {fontWeight: 'bold'}]}>
-            Thời gian giao hàng:{' '}
-          </Text>
-          {/* {orderShipping === null || orderShipping === undefined ? (
-            <Text />
-          ) : (
-            <Text style={styles.text_order_info}>
-              {' '}
-              {formatDeliveryTime(
-                orderShipping.deliveryTime.startingTimes,
-                orderShipping.deliveryTime.endingTimes,
-              )}
+    (loading === true ? (<Loading/>) : (
+      <View style={styles.container}>
+        {/* order's info */}
+        <View>
+          <View style={styles.text_space_between}>
+            <Text style={[styles.text_order_info, { fontWeight: 'bold' }]}>
+              Thời gian giao hàng:{' '}
             </Text>
-          )} */}
-          {renderDeliveryTime(orderValue)}
-        </View>
-        <View style={styles.text_space_between}>
-          <Text style={[styles.text_order_info, {fontWeight: 'bold'}]}>
-            Địa chỉ:{' '}
+            {renderDeliveryTime(orderValue)}
+          </View>
+          <View style={styles.text_space_between}>
+            <Text style={[styles.text_order_info, { fontWeight: 'bold' }]}>
+              Địa chỉ:{' '}
+            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Map_Mapbox', {
+              id: orderValue
+            })} disabled={orderValue ? false : true}>
+              <Text
+                style={
+                  (styles.text_order_info, { color: '#1e90ff', paddingTop: 7 })
+                }>
+                Xem đường đi
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {renderAddress(orderValue)}
+          <Text style={[styles.text_order_info, { fontWeight: 'bold' }]}>
+            Người mua: {orderValue ? orderValue.customerName : null}
           </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Map_Mapbox')} disabled={orderValue ? false : true}>
-            <Text
-              style={
-                (styles.text_order_info, {color: '#1e90ff', paddingTop: 7})
-              }>
-              Xem đường đi
+          <View style={styles.text_space_between}>
+            <Text style={[styles.text_order_info, { fontWeight: 'bold' }]}>
+              SĐT: {orderValue ? orderValue.customerPhone : null}
+            </Text>
+          </View>
+        </View>
+        <View>
+          <View style={styles.text_space_between}>
+            <Text style={[styles.text_order_info, { fontWeight: 'bold' }]}>
+              Đã thanh toán trước:
+            </Text>
+            {orderValue ? (
+              <Text style={styles.text_order_info}>
+                {orderValue.paymentStatus ? orderValue.paymentAmount : '0'}{' '}
+                VNĐ
+              </Text>
+            ) : (
+              <Text />
+            )}
+          </View>
+          <View style={styles.text_space_between}>
+            <Text style={[styles.text_order_info, { fontWeight: 'bold' }]}>
+              Tiền phải thu:
+            </Text>
+            {orderValue ? (
+              <Text
+                style={
+                  (styles.text_order_info,
+                    { color: 'red', fontWeight: 'bold', paddingTop: 9 })
+                }>
+                {orderValue.paymentStatus ? '0' : orderValue.paymentAmount}{' '}
+                VNĐ
+              </Text>
+            ) : (
+              <Text />
+            )}
+          </View>
+
+          <View style={styles.text_space_between}>
+            <Text style={[styles.text_order_info, { fontWeight: 'bold' }]}>
+              Mã đơn hàng:
+            </Text>
+            <Text style={[styles.text_order_info, { fontWeight: 'bold' }]}>
+              {orderValue ? orderValue.orderId : null}
+            </Text>
+          </View>
+          <Text style={styles.text_order_info}>Ghi chú:</Text>
+          <View style={styles.box}>
+            <Text style={styles.text_order_info} />
+          </View>
+        </View>
+        {/* button */}
+        <View style={styles.text_space_between}>
+          <TouchableOpacity
+            style={styles.button_submit_done}
+            disabled={orderValue ? false : true}
+            onPress={() =>
+              Alert.alert('Thông báo', 'Xác nhận đã giao đơn hàng này !', [
+                {
+                  text: 'Xác nhận',
+                  onPress: async() => {
+                    //exe func getOrderDelivering
+                    setIsConfirm(true);
+                    //exe func getOrderComplete
+                    await setConfirm(true);
+                    setPage(DCompleted);
+                    dispatch({ type: 'getListPoint', payload: (orderShipping !== null && orderShipping.orderId === state.point[0].orderId ? state.point.slice(1) : state.point) });
+                    dispatch({type:'removeDelivering', payload: null});
+                    dispatch({type: 'completed', payload: orderShipping});
+                    // dispatch({type: 'reRender', payload: true});
+                    setOrderShipping(null);
+                  },
+                },
+                { text: 'Quay lại', onPress: () => console.log('cancel') },
+              ])
+            }>
+            <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+              Xác nhận đã giao
             </Text>
           </TouchableOpacity>
-        </View>
-        {/* {orderShipping === null || orderShipping === undefined ? (
-          <Text />
-        ) : (
-          <Text style={styles.text_order_info}>
-            {orderShipping.address.details +
-              ', ' +
-              orderShipping.address.ward +
-              ', ' +
-              orderShipping.address.district +
-              ', ' +
-              orderShipping.address.city}
-          </Text>
-        )} */}
-        {renderAddress(orderValue)}
-        <Text style={[styles.text_order_info, {fontWeight: 'bold'}]}>
-          Người mua: {orderValue ? orderValue.customerName : null}
-        </Text>
-        <View style={styles.text_space_between}>
-          <Text style={[styles.text_order_info, {fontWeight: 'bold'}]}>
-            SĐT: {orderValue ? orderValue.customerPhone : null}
-          </Text>
-        </View>
-      </View>
-      <View>
-        <View style={styles.text_space_between}>
-          <Text style={[styles.text_order_info, {fontWeight: 'bold'}]}>
-            Đã thanh toán trước:
-          </Text>
-          {orderValue ? (
-            <Text style={styles.text_order_info}>
-              {orderValue.paymentStatus ? orderValue.paymentAmount : '0'}{' '}
-              VNĐ
-            </Text>
-          ) : (
-            <Text />
-          )}
-        </View>
-        <View style={styles.text_space_between}>
-          <Text style={[styles.text_order_info, {fontWeight: 'bold'}]}>
-            Tiền phải thu:
-          </Text>
-          {orderValue ? (
-            <Text
-              style={
-                (styles.text_order_info,
-                {color: 'red', fontWeight: 'bold', paddingTop: 9})
-              }>
-              {orderValue.paymentStatus ? '0' : orderValue.paymentAmount}{' '}
-              VNĐ
-            </Text>
-          ) : (
-            <Text />
-          )}
-        </View>
-
-        <View style={styles.text_space_between}>
-          <Text style={[styles.text_order_info, {fontWeight: 'bold'}]}>
-            Mã đơn hàng:
-          </Text>
-          <Text style={[styles.text_order_info, {fontWeight: 'bold'}]}>
-            {orderValue ? orderValue.orderId : null}
-          </Text>
-        </View>
-        <Text style={styles.text_order_info}>Ghi chú:</Text>
-        <View style={styles.box}>
-          <Text style={styles.text_order_info} />
-        </View>
-      </View>
-      {/* button */}
-      <View style={styles.text_space_between}>
-        <TouchableOpacity
-          style={styles.button_submit_done}
-          disabled={orderValue ? false : true}
-          onPress={() =>
-            Alert.alert('Thông báo', 'Xác nhận đã giao đơn hàng này !', [
-              {
-                text: 'Xác nhận',
-                onPress: () => {
-                  setIsConfirm(true);
-                  setPage(DCompleted);
-                  setOrderShipping(null);
-                },
-              },
-              { text: 'Quay lại', onPress: () => console.log('cancel') },
-            ])
-          }>
-          <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-            Xác nhận đã giao
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+          <TouchableOpacity
             style={styles.button_change_time}
             onPress={() => navigation.navigate('ChangeTime', {
-              orderId: orderValue,
+              order: orderValue,
             })} disabled={orderValue ? false : true}>
             <Text style={{ color: 'black', fontSize: 14 }}>Đổi giờ - hủy giao</Text>
-          </TouchableOpacity>        
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    ))
   );
 };
 
 const Need_Delivery_Component = props => {
   const [selected, setSelected] = useState(null);
-  const [orderSelected, setOrderSelected] = useState();
-
+  const [firstOrder, setFirstOrder] = useState(null);
+  const [orderSelected, setOrderSelected] = useState(null);
+  // const [listOrders, setListOrders] = useState(props.state.point.slice(1));
+  // console.log("listOrders: " +listOrders[0].orderId);
   // remove first element if orderId null and last element
   const filterArr = (arr) => {
     if (arr[0].orderId === null) {
@@ -492,32 +503,43 @@ const Need_Delivery_Component = props => {
     return arr.slice(0, -1);
   }
 
-  //Call API to re render list Order need delivery
-  const reRenderOrdersOfUser = async id => {
-    try {
-      const response = await fetch(
-        `http://${ip}/api/v0/orders/routes?accId=${encodeURIComponent(id)}&geoCoordinate=${encodeURIComponent(props.startPoint)}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      const data = await response.json();
-      const dataFilter = filterArr(data);
-      props.setListOrder(dataFilter);
+  //Call API to re render list Order need delivery (when move from delivering or delivered to need)
+  const reRenderOrdersOfUser = () => {
+    // console.log(props.state.point[1]);
+    if (props.state.point !== null) {
+      const list = props.state.point.slice(1);
+      props.setListOrder(list);
+      setFirstOrder(list[0]);
+      setOrderSelected(list[0]);
       props.setLoading(false);
-    } catch (error) {
-      console.error(error);
+      props.setRunGetNeeded(false);
     }
+    // try {
+    //   const response = await fetch(
+    //     `http://${ip}/api/v0/orders/routes?accId=${encodeURIComponent(id)}&geoCoordinate=${encodeURIComponent(props.startPoint)}`,
+    //     {
+    //       method: 'GET',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //     },
+    //   );
+    //   const data = await response.json();
+    //   const dataFilter = filterArr(data);
+    //   props.setListOrder(dataFilter); 
+    //   setFirstOrder(dataFilter[0]);
+    //   setOrderSelected(dataFilter[0]);
+    //   props.setLoading(false);
+    // } catch (error) {
+    //   console.error(error);
+    // }
   };
   useEffect(() => {
-    if (props.state.user) {
-      reRenderOrdersOfUser(props.state.user.accountId);
-    }
-  }, []);
-
+    // if (props.listOrder === null) {
+      reRenderOrdersOfUser();
+      console.log('ren der')
+    // }
+  }, [props.state.point, props.runGetNeeded]);
   function handleSelection(id, ordId) {
     var selectedId = selected;
     // console.log('id: ' + id);
@@ -538,9 +560,6 @@ const Need_Delivery_Component = props => {
   }
   
   let listNeedDelivery = null;
-  console.log("propsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
-  console.log(props.listOrder)
-  console.log("propsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
   if (props.listOrder) {
     listNeedDelivery = props.listOrder.map((e, index) => ({
       key: index,
@@ -561,9 +580,9 @@ const Need_Delivery_Component = props => {
       paymentStatus: e.paymentStatus,
     }));
   }
-  
 
   const [isSending, setIsSending] = useState(false);
+  const [isDispatch, setIsDispatch] = useState(false);
   const ConfirmDelivery = async id => {
     try {
       const response = await fetch(
@@ -577,22 +596,28 @@ const Need_Delivery_Component = props => {
       );
       const data = await response.json();
       props.setOrderShipping(data);
+      props.dispatch({type:'Point', payload: props.state.point.filter(e => e.orderId !== data.orderId)});      
+      props.dispatch({type:'delivering', payload: data});
+      
+      console.log(props.state.delivering);
     } catch (error) {
       console.error(error);
     }
   };
-  React.useEffect(() => {
-    if (isSending) {
-      ConfirmDelivery(orderSelected);
-      setIsSending(false);
-    }
+  useEffect(() => {
+    (async() => {
+      if (isSending) {
+        await ConfirmDelivery(orderSelected.orderId);
+        setIsSending(false);
+      }
+    })()
   }, [isSending]);
 
   const handleSubmit = async () => {
-    // console.log(orderSelected);
     if (props.orderShipping === null || props.orderShipping === undefined) {
       await setIsSending(true);
       props.setPage(Delivering);
+      props.setLoading(true);
       return;
     }
     return Alert.alert('Thông báo', 'Bạn có một đơn hàng đang giao !', [
@@ -603,7 +628,16 @@ const Need_Delivery_Component = props => {
   const Item = ({item, onPress, backgroundColor}) => {
     return (
       <ScrollView>
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity onPress={onPress} onLongPress={item !== null && firstOrder !== null && item.orderId === firstOrder.orderId ? (() => 
+              Alert.alert('Thông báo', 'Bạn muốn Đổi giờ/Hủy giao đơn hàng này !', [
+                {
+                  text: 'Xác nhận',
+                  onPress: () => {
+                    props.navigation.navigate('ChangeTime',{order: orderSelected})
+                  },
+                },
+                { text: 'Quay lại', onPress: () => console.log('cancel') },
+              ])) : null}>
           <View
             style={[styles.table_column, {backgroundColor: backgroundColor }]}>
             <View style={styles.table_data_column_left}>
@@ -651,11 +685,11 @@ const Need_Delivery_Component = props => {
   }
 
   const renderItem = ({item}) => {
-    const backgroundColor = item.orderId === orderSelected ? (COLORS.greenSelected) : (COLORS.green);
+    const backgroundColor = orderSelected!== null && item.orderId === orderSelected.orderId ? (COLORS.greenSelected) : (COLORS.green);
     return (
         <Item
         item={item}
-        onPress={() => setOrderSelected(item.orderId)}
+        onPress={() => setOrderSelected(item)}
         backgroundColor={backgroundColor}/>
     );
   }
@@ -729,18 +763,17 @@ const Need_Delivery_Component = props => {
       </View>
 
       {/* button submit */}
-      <View style={styles.button_submit}>
-        <TouchableOpacity
-          onPress={() => {
-            handleSubmit();
-            console.log('DELIVERINGGGGGGGGGGGGGGGGGGGGGGGGG');
-            console.log(props.orderShipping);
-          }}>
-          <Text style={{color: '#FFFFFF', fontSize: 20, fontWeight: 'bold'}}>
-            Giao hàng
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {firstOrder!== null && orderSelected !== null ? (
+        <View style={styles.button_submit}>
+          <TouchableOpacity
+            onPress={orderSelected.orderId === firstOrder.orderId ? (() => {props.setRunGetDelivering(true);handleSubmit();}) : (() => (props.navigation.navigate('ChangeTime',{order: orderSelected})))
+          }>
+            <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' }}>
+              {orderSelected.orderId === firstOrder.orderId ? ("Giao hàng") : ("Đổi giờ - Hủy giao")}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
     </View>
   );
 };

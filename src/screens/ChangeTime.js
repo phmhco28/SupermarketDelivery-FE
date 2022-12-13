@@ -13,16 +13,19 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import 'react-native-gesture-handler';
 import {TextInput} from 'react-native-gesture-handler';
 import ip from '../api';
+import {useAuth} from '../store';
+import Loading from '../components/loading';
 
 const {COLORS, FONTS, SIZES} = theme;
 
 const ChangeTime = ({navigation,route}) => {
+  const [state, dispatch] = useAuth();
   const [orderValue, setOrderValue] = useState(null);
-  const [isCancel, setIsCancel] = useState(false);
-  const [isChange, setIsChange] = useState(false);
   const [active, setActive] = useState(false);
-  const [choose, setChoose] = useState(false);
   const [time, setTime] = useState(null);
+  const [startPoint, setStartPoint] = useState("10.8277883,106.7216705");
+  const [isLoading, setIsLoading] = useState(false);
+  
   //check box
 
   const [checkTim1, setCheckTime1] = useState(false);
@@ -33,18 +36,19 @@ const ChangeTime = ({navigation,route}) => {
   const [reason3, setReason3] = useState(false);
   const [reason4, setReason4] = useState(false);
   
-  
 
 
   useEffect(() => {
     (async() => {
-      const value = await route.params.orderId;
+      const value = await route.params.order;
       setOrderValue(value);
+      console.log("Valueeeeeeeeeeeeeeeeeeee: "+value.orderId);
     })();
-  },[]);
+  },[route.params.order]);
 
   //Call API Cancel
   const CancelOrder = async id => {
+    // await reNewListPoint();
     try {
       const response = await fetch(
         `http://${ip}/api/v0/orders/cancel-order/${encodeURIComponent(id)}`,
@@ -56,19 +60,14 @@ const ChangeTime = ({navigation,route}) => {
         },
       );
       const data = await response.json();
-      console.log(data);
+      console.log("Đã Cancel Order: " + data.orderId + ' status: ' + data.status.statusName);
     } catch (error) {
       console.error(error);
     }
   };
-  useEffect(() => {
-    if (isCancel) {
-      CancelOrder(orderValue.orderId);
-      setIsCancel(false);
-    }
-  }, [isCancel]);
 
   const ChangeTimeDelivery = async (orderId,timeId) => {
+    // await reNewListPoint();
     try {
       const response = await fetch(
         `http://${ip}/api/v0/orders/change-time-delivery/${encodeURIComponent(orderId)}/${encodeURIComponent(timeId)}`,
@@ -80,21 +79,95 @@ const ChangeTime = ({navigation,route}) => {
         },
       );
       const data = await response.json();
-      console.log(data);
+      console.log("Đã change timeeeeeeeeeee: " + data.orderId + ' status: ' + data.status.statusName);
     } catch (error) {
       console.error(error);
     }
   };
-  useEffect(() => {
-    if (isChange) {
-      ChangeTimeDelivery(orderValue.orderId,time);
-      setIsChange(false);
-      
+ 
+  //reload state ListPoint because change time()
+  const getRoutes = async (id, startPoint) => {    
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `http://${ip}/api/v0/orders/routes?accId=${encodeURIComponent(id)}&geoCoordinate=${encodeURIComponent(startPoint)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      console.log('Called getRoutes');
+      dispatch({
+        type: 'Point',
+        payload: data.slice(0,-1),
+      });
+      console.log('ReNew List')
+    } catch (error) {
+      console.error(error);
     }
-  }, [isChange]);
-
-
+  };
   
+  const reNewListPoint = async (str) => {
+    console.log("state.delivering---------------------------------------------------------------------");
+    console.log(state.delivering);
+    setIsLoading(true);
+
+    //TH1: Change time/ Cancel order delivering -> start point is order delivering (*******************should get coor current of shipper ****)
+    if (state.delivering && orderValue && state.delivering.orderId === orderValue.orderId) {
+      const geo = state.delivering.address.latitude+','+state.delivering.address.longitude;
+      await getRoutes(state.user.accountId,geo);
+      if (str === 'Cancel') {        
+        await CancelOrder(orderValue.orderId)      
+        setIsLoading(false)
+      }
+      else if (str === 'ChangeTime') {
+        await ChangeTimeDelivery(orderValue.orderId, time);     
+        setIsLoading(false)
+      }
+      dispatch({type:'removeDelivering', payload: null});
+    }
+    //TH2: Change time/ Cancel an order in current state.point while delivering another order
+    else if (state.delivering && orderValue && state.delivering.orderId !== orderValue.orderId) {
+      const geo = state.delivering.address.latitude+','+state.delivering.address.longitude;
+      if (str === 'Cancel') {        
+        await CancelOrder(orderValue.orderId)      
+      }
+      else if (str === 'ChangeTime') {
+        await ChangeTimeDelivery(orderValue.orderId, time);     
+      }
+      getRoutes(state.user.accountId,geo);
+      setIsLoading(false);
+    }
+    //TH3: Change time/Cancel after complete delivering an order -> start point is completed order
+    else if (state.completed) {
+      const geo = state.completed.address.latitude+','+state.completed.address.longitude;
+      await getRoutes(state.user.accountId,geo);
+      if (str === 'Cancel') {        
+        await CancelOrder(orderValue.orderId)      
+        setIsLoading(false)
+      }
+      else if (str === 'ChangeTime') {
+        await ChangeTimeDelivery(orderValue.orderId, time);     
+        setIsLoading(false)
+      }
+    }
+    //TH4: Change time/ Cancel before departure (state.point[0].orderId === null)
+    else {
+      if (str === 'Cancel') {        
+        await CancelOrder(orderValue.orderId)      
+        // setIsLoading(false)
+      }
+      else if (str === 'ChangeTime') {
+        await ChangeTimeDelivery(orderValue.orderId, time);     
+        // setIsLoading(false)
+      }
+      getRoutes(state.user.accountId,startPoint);
+      setIsLoading(false)
+    }
+  }
 
   const renderHeader = () => {
     return (
@@ -192,12 +265,10 @@ const ChangeTime = ({navigation,route}) => {
               Alert.alert('Thông báo', 'Xác nhận hủy giao đơn hàng này !', [
                 {
                   text: 'Xác nhận',
-                  onPress: () => {
-                    setIsCancel(true);
-                    // setOrderShipping(null);
-                    navigation.navigate('Orders',{
-                      page: 'Need_Delivery'
-                    });
+                  onPress: async() => {
+                    await reNewListPoint('Cancel');
+                    dispatch({type: 'reRender', payload: true});
+                    navigation.navigate('Orders');
                   },
                 },
                 { text: 'Quay lại', onPress: () => console.log('cancel') },
@@ -206,18 +277,18 @@ const ChangeTime = ({navigation,route}) => {
             disabled={orderValue && active ? false : true}>
             <Text style={{ color: 'black', fontSize: 14 }}>Hủy giao</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={orderValue && active===false ? ([styles.button_change_time,{backgroundColor: '#1e90ff'}]):(styles.button_change_time)}
             onPress={() => 
               Alert.alert('Thông báo', 'Xác nhận đổi thời gian giao đơn hàng này !', [
                 {
                   text: 'Xác nhận',
-                  onPress: () => {
-                    setIsChange(true);
+                  onPress: async() => {
+                    await reNewListPoint('ChangeTime');
                     // setOrderShipping(null);
-                    navigation.navigate('Orders', {
-                      page: 'Need_Delivery'
-                    });
+                    dispatch({type: 'reRender', payload: true});
+                    navigation.navigate('Orders');
                   },
                 },
                 { text: 'Quay lại', onPress: () => console.log('cancel') },
@@ -245,7 +316,14 @@ const ChangeTime = ({navigation,route}) => {
       {/* header */}
       {renderHeader()}
       {/* shipper info */}
-      {renderReason()}
+      {isLoading ? (
+        <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, paddingTop: 210 }}>
+            <Loading style={{ height: '35%', alignItems: 'flex-end' }} />
+          </View>
+          <Text style={{ flex: 4, height: '65%', fontSize: 18 }}>Chúng tôi đang cập nhật lại tuyến đường ...</Text>
+        </View>
+      ): (renderReason())}      
     </SafeAreaView>
   );
 };

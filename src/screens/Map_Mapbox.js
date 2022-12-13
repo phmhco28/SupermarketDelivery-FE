@@ -27,29 +27,24 @@ MapboxGL.setAccessToken(MAPBOX_TOKEN);
 const directionService = goongDirections({accessToken: GOONG_SERVICES_TOKEN});
 
 const Map_Mapbox = ({navigation, route}) => {
-  const startingPoint = [106.7216705,10.8277883]; 
+  const startingPoint = [106.7216705,10.8277883];
+  const [root, setRoot] = useState("10.8277883,106.7216705");
   const destinationPoint = [ 106.7580315,10.8546373 ];
   const destinationPoint2 = [106.782914,10.8555748];
   //const [coordinates, setCoordinates] = useState([106.7226893,10.8282865]);
   const [routes, setRoutes] = useState(null);
   const [route1, setRoute1] = useState(null);
+  const [originPoint, setOriginPoint] = useState(null);
 
-
-  const [orderDelivering, setOrderDelivering] = useState(null);
-  const [point, setPoint] = useState({ "destination": "10.8546373,106.7580315", "distance": "0.505", "duration": "292", "orderId": "206222SHA", "origin": "10.8563546,106.7550549" });
   const [listPoint, setListPoint] = useState(null);
   const [state, dispatch] = useAuth();
+  
   useEffect(() => {
-    (async () => {
-      const value = await AsyncStorage.getItem('point');
+    if (state.point !== null) {
+      setListPoint(state.point.slice(1));
+    }   
+  }, [state.point]);
 
-      if (value !== null) {
-        setListPoint(JSON.parse(value));
-      }
-    })();
-  }, []);
-
-    // //getListOrders need delivery and save to state point
     // remove first element if orderId null and last element
     const filterArr = (arr) => {
       if (arr[0].orderId === null) {
@@ -57,71 +52,15 @@ const Map_Mapbox = ({navigation, route}) => {
       }
       return arr.slice(0, -1);
     }
-    const getListOrders = async id => {
-      try {
-        const response = await fetch(
-          `http://${ip}/api/v0/orders/routes?accId=${encodeURIComponent(id)}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          },
-        );
-        const data = await response.json();
-        // console.log(data);
-        setListPoint(filterArr(data));
-        dispatch({
-          type: 'Point',
-          payload: data.slice(0,-1),
-        });
-        // props.setLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
-    };
 
-    const getDelivering = async id => {
-      try {
-        const response = await fetch(
-          `http://${ip}/api/v0/orders/delivering?accId=${encodeURIComponent(id)}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          },
-        );
-        const data = await response.json();
-        // console.log(data);
-        setOrderDelivering(data);
-        // props.setLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-  
     useEffect(() => {
-      if (listPoint === null) {
-        getListOrders(state.user.accountId);
+      if (state.listPointOfOrders && state.delivering) {
+        const pointOfDelivering = state.listPointOfOrders.find(e => e.orderId === state.delivering.orderId);
+        const getOriginPoint = state.listPointOfOrders.find(e => e.destination === pointOfDelivering.origin);
+        setOriginPoint(getOriginPoint);
+        fetchRoute(getOriginPoint.origin, getOriginPoint.destination);
       }
-      getDelivering(state.user.accountId);
-    }, []);
-
-    
-
-    // useEffect(() => {
-    //   if (listPoint !== null) {
-    //     const p = listPoint.find(element => element.orderId === orderDelivering.orderId);
-    //     setPoint(p);
-    //   }
-      
-    // },[])
-    useEffect(() => {
-      if (listPoint !== null && point !== null) {
-        fetchRoute(point.origin, point.destination);
-      }
-    },[])
+    },[state.delivering])
     
     const fetchRoute = async (origins,destinations) => {
       const reqOptions = {
@@ -169,8 +108,8 @@ const Map_Mapbox = ({navigation, route}) => {
 
     const RenderRoute = (props) => {
       return (
-        <MapboxGL.ShapeSource id={props.shapeID} shape={props.routeInput}>
-          <MapboxGL.LineLayer id={props.lineID} style={{lineWidth: 7, lineCap: 'round', lineJoin: 'round', lineColor: '#1e88e5'}} />
+        <MapboxGL.ShapeSource id={props.shapeID} shape={props.routeInput} >
+          <MapboxGL.LineLayer id={props.lineID} style={{lineWidth: 7, lineCap: 'round', lineJoin: 'round', lineColor: '#1e88e5'}}/>
         </MapboxGL.ShapeSource>
       );
     }
@@ -277,21 +216,21 @@ const Map_Mapbox = ({navigation, route}) => {
         <View style={{height: "100%", width: "100%"}}>
           <MapboxGL.MapView  zoomLevel={13} style={{flex: 1}} styleURL={`https://tiles.goong.io/assets/goong_map_web.json?api_key=${GOONG_MAPS_TOKEN}`}>  
           {/* styleJSON={JSON.stringify(defaultStyle)}  */}
-          <MapboxGL.Camera zoomLevel={16}
+          <MapboxGL.Camera zoomLevel={13}
             centerCoordinate={startingPoint}
             animationMode={'flyTo'}
             animationDuration={0}
             //followUserLocation={true}
           />
-          <MapboxGL.PointAnnotation id={'root'} coordinate={startingPoint}/>
-
-           {point !== null && listPoint !== null? <RenderRoute shapeID='shapSource1' lineID= 'lineLayer' routeInput = {routes}/> : null}
+          {state.delivering !== null ? <RenderDestinationPoint longitude={state.delivering.address.longitude} latitude={state.delivering.address.latitude}/>
+            : null}
+          {originPoint !== null && originPoint.orderId !== null ? <RenderOriginPoint origin={originPoint.origin}/> : null}
+          <MapboxGL.PointAnnotation id={'root'} coordinate={startingPoint}/>          
+          {listPoint !== null ? <RenderPoint /> : null}
+          {listPoint !== null && routes !== null ? <RenderRoute shapeID='shapSource' lineID= 'lineLayerr' routeInput = {routes}/> : null}
+          
            {/* <RenderMarkers/> */}
           <MapboxGL.UserLocation visible={true}/>
-          {listPoint !== null ? <RenderPoint /> : null}
-          {/* {RenderRoute()}
-          {console.log(routes)} */}
-          {/* <RenderRoute /> */}
           {/* <RenderRoute shapeID='shapSource1' lineID= 'lineLayer' routeInput = {routes}/> */}
           {/* {renderPoint()} */}
           {/* <RenderRoute shapeID='shapSource2' lineID = 'lineLayer2' routeInput = {route1}/> */}
@@ -333,6 +272,53 @@ const Map_Mapbox = ({navigation, route}) => {
 };
 
 export default Map_Mapbox;
+
+const RenderDestinationPoint = (props) => {
+  return (
+    <MapboxGL.PointAnnotation
+      id='destination'
+      coordinate={[Number(props.longitude), Number(props.latitude)]} >
+      <View >
+        <Image
+          source={require("../assets/images/pin.png")}
+          style={{
+            width: 42,
+            height: 42,
+            // backgroundColor: "red",
+            resizeMode: "cover",
+          }}
+        />
+      </View>
+    </MapboxGL.PointAnnotation >
+  );
+}
+
+const RenderOriginPoint = (props) => {
+  const reverse = (str) => {
+    const reverseGeo = str.split(',');
+    let arr = [];
+    arr.push(Number(reverseGeo[1]));
+    arr.push(Number(reverseGeo[0]));
+    return  arr;
+  }
+  return (
+    <MapboxGL.PointAnnotation
+      id='origin'
+      coordinate={reverse(props.origin)}>
+      <View >
+        <Image
+          source={require("../assets/images/delivery-box.png")}
+          style={{
+            width: 30,
+            height: 30,
+            // backgroundColor: "red",
+            resizeMode: "cover",
+          }}
+        />
+      </View>
+    </MapboxGL.PointAnnotation>
+  )
+}
 
 // const defaultStyle = {
 //   version: 8,

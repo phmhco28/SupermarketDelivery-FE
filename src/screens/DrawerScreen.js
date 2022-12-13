@@ -28,6 +28,18 @@ export default function DrawerScreen(props) {
       type: 'Logout',
       payload: null,
     });
+    dispatch({
+      type: 'RemovePoint',
+      payload: null,
+    });
+    dispatch({
+      type: 'removeDelivering',
+      payload: null,
+    });
+    dispatch({
+      type: 'removeListPointOfOrder',
+      payload: null,
+    });
     props.navigation.navigate('authStack', {screen: 'SignIn'});
   };
   const getUser = async id => {
@@ -52,8 +64,8 @@ export default function DrawerScreen(props) {
     if (state.user) {
       getUser(state.user.accountId);
     }
-    console.log(user)
     console.log('user state: ' + state.user)
+    console.log('point state: ' + state.point)
   }, []);
   return (
     <View style={{flex: 1, backgroundColor: COLORS.white}}>
