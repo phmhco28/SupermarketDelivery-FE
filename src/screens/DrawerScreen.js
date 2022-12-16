@@ -28,18 +28,18 @@ export default function DrawerScreen(props) {
       type: 'Logout',
       payload: null,
     });
-    dispatch({
-      type: 'RemovePoint',
-      payload: null,
-    });
-    dispatch({
-      type: 'removeDelivering',
-      payload: null,
-    });
-    dispatch({
-      type: 'removeListPointOfOrder',
-      payload: null,
-    });
+    // dispatch({
+    //   type: 'RemovePoint',
+    //   payload: null,
+    // });
+    // dispatch({
+    //   type: 'removeDelivering',
+    //   payload: null,
+    // });
+    // dispatch({
+    //   type: 'removeListPointOfOrder',
+    //   payload: null,
+    // });
     props.navigation.navigate('authStack', {screen: 'SignIn'});
   };
   const getUser = async id => {

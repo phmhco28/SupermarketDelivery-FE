@@ -15,6 +15,7 @@ import {useAuth} from '../store';
 import Moment from 'moment';
 import ip from '../api';
 
+
 const {COLORS, FONTS, SIZES} = theme;
 
 const Shift = ({navigation}) => {
@@ -155,7 +156,7 @@ const Shift = ({navigation}) => {
         <View style={styles.container}>
           <Text
             style={{fontSize: 13, padding: 4, color: 'black', marginBottom: 8}}>
-            Dữ liệu cập nhật lúc: 4:50 pm, ngày 18/06/2022
+            Dữ liệu cập nhật lúc: 8:50 pm, ngày 11/12/2022
           </Text>
           <View>
             <View style={styles.t_column}>

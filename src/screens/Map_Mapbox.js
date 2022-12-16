@@ -255,12 +255,12 @@ const Map_Mapbox = ({navigation, route}) => {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <View style={{height: "100%", width: "100%"}}>
-          <MapboxGL.MapView  zoomLevel={13} style={{flex: 1}} styleURL={`https://tiles.goong.io/assets/goong_map_web.json?api_key=${GOONG_MAPS_TOKEN}`}>  
+          <MapboxGL.MapView  zoomLevel={15} style={{flex: 1}} styleURL={`https://tiles.goong.io/assets/goong_map_web.json?api_key=${GOONG_MAPS_TOKEN}`}>  
           {/* styleJSON={JSON.stringify(defaultStyle)}  */}
-          <MapboxGL.Camera zoomLevel={13}
-            centerCoordinate={startingPoint}
+          <MapboxGL.Camera zoomLevel={18}
+            centerCoordinate={originPoint && originPoint.orderId ? reverse(originPoint.origin) :startingPoint}
             animationMode={'flyTo'}
-            animationDuration={0}
+            animationDuration={3500}
             //followUserLocation={true}
           />
           {state.delivering ? <RenderDestinationPoint /> : null}
