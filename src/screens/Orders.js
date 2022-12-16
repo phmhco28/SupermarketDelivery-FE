@@ -599,7 +599,6 @@ const Need_Delivery_Component = props => {
       props.dispatch({type:'Point', payload: props.state.point.filter(e => e.orderId !== data.orderId)});      
       props.dispatch({type:'delivering', payload: data});
       
-      console.log(props.state.delivering);
     } catch (error) {
       console.error(error);
     }
@@ -763,7 +762,7 @@ const Need_Delivery_Component = props => {
       </View>
 
       {/* button submit */}
-      {firstOrder!== null && orderSelected !== null ? (
+      {firstOrder && orderSelected ? (
         <View style={styles.button_submit}>
           <TouchableOpacity
             onPress={orderSelected.orderId === firstOrder.orderId ? (() => {props.setRunGetDelivering(true);handleSubmit();}) : (() => (props.navigation.navigate('ChangeTime',{order: orderSelected})))

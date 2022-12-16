@@ -111,8 +111,6 @@ const ChangeTime = ({navigation,route}) => {
   };
   
   const reNewListPoint = async (str) => {
-    console.log("state.delivering---------------------------------------------------------------------");
-    console.log(state.delivering);
     setIsLoading(true);
 
     //TH1: Change time/ Cancel order delivering -> start point is order delivering (*******************should get coor current of shipper ****)

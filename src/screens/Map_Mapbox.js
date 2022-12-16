@@ -210,6 +210,47 @@ const Map_Mapbox = ({navigation, route}) => {
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(false);
   },[]);
+
+  const RenderDestinationPoint = (props) => {
+    return (
+      <MapboxGL.PointAnnotation
+        id='destination'
+        coordinate={[Number(state.delivering.address.longitude), Number(state.delivering.address.latitude)]} >
+        <View >
+          <Image
+            source={require("../assets/images/pin.png")}
+            style={{
+              width: 42,
+              height: 42,
+              // backgroundColor: "red",
+              resizeMode: "cover",
+            }}
+          />
+        </View>
+      </MapboxGL.PointAnnotation >
+    );
+  }
+  
+  const RenderOriginPoint = () => {
+    return (
+      <MapboxGL.PointAnnotation
+        id='origin'
+        coordinate={reverse(originPoint.origin)}>
+        <View >
+          <Image
+            source={require("../assets/images/delivery-box.png")}
+            style={{
+              width: 30,
+              height: 30,
+              // backgroundColor: "red",
+              resizeMode: "cover",
+            }}
+          />
+        </View>
+      </MapboxGL.PointAnnotation>
+    )
+  }
+
   function renderMap() {        
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -222,9 +263,8 @@ const Map_Mapbox = ({navigation, route}) => {
             animationDuration={0}
             //followUserLocation={true}
           />
-          {state.delivering !== null ? <RenderDestinationPoint longitude={state.delivering.address.longitude} latitude={state.delivering.address.latitude}/>
-            : null}
-          {originPoint !== null && originPoint.orderId !== null ? <RenderOriginPoint origin={originPoint.origin}/> : null}
+          {state.delivering ? <RenderDestinationPoint /> : null}
+          {originPoint && originPoint.orderId ? <RenderOriginPoint /> : null}
           <MapboxGL.PointAnnotation id={'root'} coordinate={startingPoint}/>          
           {listPoint !== null ? <RenderPoint /> : null}
           {listPoint !== null && routes !== null ? <RenderRoute shapeID='shapSource' lineID= 'lineLayerr' routeInput = {routes}/> : null}
@@ -272,53 +312,6 @@ const Map_Mapbox = ({navigation, route}) => {
 };
 
 export default Map_Mapbox;
-
-const RenderDestinationPoint = (props) => {
-  return (
-    <MapboxGL.PointAnnotation
-      id='destination'
-      coordinate={[Number(props.longitude), Number(props.latitude)]} >
-      <View >
-        <Image
-          source={require("../assets/images/pin.png")}
-          style={{
-            width: 42,
-            height: 42,
-            // backgroundColor: "red",
-            resizeMode: "cover",
-          }}
-        />
-      </View>
-    </MapboxGL.PointAnnotation >
-  );
-}
-
-const RenderOriginPoint = (props) => {
-  const reverse = (str) => {
-    const reverseGeo = str.split(',');
-    let arr = [];
-    arr.push(Number(reverseGeo[1]));
-    arr.push(Number(reverseGeo[0]));
-    return  arr;
-  }
-  return (
-    <MapboxGL.PointAnnotation
-      id='origin'
-      coordinate={reverse(props.origin)}>
-      <View >
-        <Image
-          source={require("../assets/images/delivery-box.png")}
-          style={{
-            width: 30,
-            height: 30,
-            // backgroundColor: "red",
-            resizeMode: "cover",
-          }}
-        />
-      </View>
-    </MapboxGL.PointAnnotation>
-  )
-}
 
 // const defaultStyle = {
 //   version: 8,

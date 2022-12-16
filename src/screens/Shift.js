@@ -58,7 +58,6 @@ const Shift = ({navigation}) => {
       getWorkScheduleOfUser(startDate, endDate, state.user.accountId);
     }
   }, []);
-  console.log(listValue);
 
   //MidView
   function renderUnCheckBox() {
